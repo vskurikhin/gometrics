@@ -1,14 +1,13 @@
 /*
- * This file was last modified at 2024-02-04 16:54 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-08 08:55 by Victor N. Skurikhin.
  * parser.go
  * $Id$
  */
 
-package handlers
+package parser
 
 import (
 	"errors"
-	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/api/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 	"net/http"
@@ -17,14 +16,14 @@ import (
 type parser struct {
 	r      *http.Request
 	t      types.Types
-	n      names.Names
+	n      types.Name
 	value  *string
 	status int
 }
 
 const FixedPathLength = 4
 
-func parse(r *http.Request) (parser, error) {
+func Parse(r *http.Request) (parser, error) {
 
 	path := util.SplitPath(r)
 	if len(path) < FixedPathLength || r.Method != http.MethodPost {
@@ -53,12 +52,24 @@ func parseName(r *http.Request, t types.Types, path []string) (parser, error) {
 	}
 	return parser{
 		r: r, t: t,
-		n:      names.Lookup(path[2]),
+		n:      types.Lookup(path[2]),
 		status: http.StatusOK,
 		value:  &value,
 	}, nil
 }
 
 func errorParser(r *http.Request, status int) (parser, error) {
-	return parser{status: status}, errors.New("can't parse request" + util.FormatRequest(r))
+	return parser{status: status}, errors.New("can't Parse request" + util.FormatRequest(r))
+}
+
+func (p *parser) String() string {
+	return p.n.String()
+}
+
+func (p *parser) Value() *string {
+	return p.value
+}
+
+func (p *parser) Status() int {
+	return p.status
 }

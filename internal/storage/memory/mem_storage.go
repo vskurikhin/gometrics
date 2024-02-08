@@ -7,38 +7,35 @@
 package memory
 
 import (
-	"github.com/vskurikhin/gometrics/api/names"
 	"sync"
 )
 
 type MemStorage struct {
 	mu      sync.Mutex
-	Metrics map[string]interface{}
+	Metrics map[string]string
 }
 
 var mem = new(MemStorage)
 
 func init() {
-	mem.Metrics = make(map[string]interface{})
+	mem.Metrics = make(map[string]string)
 }
 
 func Instance() *MemStorage {
 	return mem
 }
 
-func (m *MemStorage) Get(name names.Names) (interface{}, error) {
+func (m *MemStorage) Get(name string) string {
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	return m.Metrics[name.String()], nil
+	return m.Metrics[name]
 }
 
-func (m *MemStorage) Put(name names.Names, value interface{}) error {
+func (m *MemStorage) Put(name string, value string) {
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.Metrics[name.String()] = value
-
-	return nil
+	m.Metrics[name] = value
 }

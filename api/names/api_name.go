@@ -7,5 +7,9 @@
 package names
 
 const (
-	UpdateURLPath = "/update/"
+	Port            = 8080
+	Host            = "http://localhost:8080"
+	Update          = "/update"
+	UpdateURL       = Update + "/"
+	UpdateURLClient = Host + Update
 )
