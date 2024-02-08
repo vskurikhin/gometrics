@@ -7,20 +7,33 @@
 package handlers
 
 import (
+	"fmt"
+	"github.com/vskurikhin/gometrics/internal/parser"
 	"github.com/vskurikhin/gometrics/internal/storage/memory"
 	"net/http"
+	"os"
 )
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
+		defer func() {
+			if p := recover(); p != nil {
+				//goland:noinspection GoUnhandledErrorResult
+				fmt.Fprintf(os.Stderr, "update error: %v", p)
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}()
 
-		parsed, err := parse(r)
-		if err != nil {
-			w.WriteHeader(parsed.status)
+		parsed, err := parser.Parse(r)
+		if err != nil || parsed.Value() == nil {
+			w.WriteHeader(parsed.Status())
+			return
 		}
+		name := parsed.String()
 		storage := memory.Instance()
-		_ = storage.Put(parsed.n, parsed.value)
+		storage.Put(name, *parsed.Value())
+
 		return
 	} else {
 		w.WriteHeader(http.StatusNotFound)

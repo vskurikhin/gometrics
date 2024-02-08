@@ -24,21 +24,22 @@ const (
 	GAUGE
 )
 
-var l []string
-var s = [...]string{"Counter", "Gauge"}
+var lower []string
+var types = [...]string{"Counter", "Gauge"}
 
 func init() {
-	for i := range s {
-		l = append(l, strings.ToLower(s[i]))
+
+	for i := range types {
+		lower = append(lower, strings.ToLower(types[i]))
 	}
 }
 
 func (t Types) String() string {
-	return s[t]
+	return types[t]
 }
 
 func (t Types) URLPath() string {
-	return l[t]
+	return lower[t]
 }
 
 func (t Types) Eq(s string) bool {
@@ -46,6 +47,7 @@ func (t Types) Eq(s string) bool {
 }
 
 func (t Types) ParseValue(s string) (interface{}, error) {
+
 	switch t {
 	case COUNTER:
 		return strconv.Atoi(s)

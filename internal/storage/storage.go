@@ -6,10 +6,12 @@
 
 package storage
 
-import "github.com/vskurikhin/gometrics/api/names"
+import (
+	"github.com/vskurikhin/gometrics/api/types"
+)
 
 type Storage interface {
-	Get(name names.Names) (interface{}, error)
+	Get(name types.Name) (interface{}, error)
 
-	Put(name names.Names, value interface{}) error
+	Put(name types.Name, value interface{}) error
 }

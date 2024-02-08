@@ -13,14 +13,12 @@ import (
 	"net/http"
 )
 
-const port = 8080
-
 func main() {
 
 	mux := http.NewServeMux()
-	mux.Handle(names.UpdateURLPath, http.HandlerFunc(handlers.UpdateHandler))
+	mux.Handle(names.UpdateURL, http.HandlerFunc(handlers.UpdateHandler))
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", names.Port), mux)
 	if err != nil {
 		panic(err)
 	}
