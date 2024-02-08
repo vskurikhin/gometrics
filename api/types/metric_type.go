@@ -7,7 +7,6 @@
 package types
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 )
@@ -53,6 +52,7 @@ func (t Types) ParseValue(s string) (interface{}, error) {
 		return strconv.Atoi(s)
 	case GAUGE:
 		return strconv.ParseFloat(s, 64)
+	default:
+		return strconv.ParseFloat(s, 64)
 	}
-	return nil, errors.New("can't parse " + s)
 }

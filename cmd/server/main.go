@@ -7,7 +7,7 @@
 package main
 
 import (
-	"fmt"
+	"github.com/go-chi/chi/v5"
 	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/internal/handlers"
 	"net/http"
@@ -15,10 +15,10 @@ import (
 
 func main() {
 
-	mux := http.NewServeMux()
-	mux.Handle(names.UpdateURL, http.HandlerFunc(handlers.UpdateHandler))
-
-	err := http.ListenAndServe(fmt.Sprintf(":%d", names.Port), mux)
+	r := chi.NewRouter()
+	r.Post(names.UpdateChi, handlers.UpdateHandler)
+	r.Get(names.ValueChi, handlers.ValueHandler)
+	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		panic(err)
 	}
