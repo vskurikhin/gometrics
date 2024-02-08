@@ -40,13 +40,13 @@ func putSample(storage *memory.MemStorage, memStats *runtime.MemStats, n types.N
 	switch metric.Type().(type) {
 	case uint64:
 		value := fmt.Sprintf("%d", types.Metrics[n].FuncUint64()(memStats))
-		storage.Put(name, value)
+		storage.Put(name, &value)
 	case uint32:
 		value := fmt.Sprintf("%d", types.Metrics[n].FuncUint32()(memStats))
-		storage.Put(name, value)
+		storage.Put(name, &value)
 	case float64:
 		value := fmt.Sprintf("%f", types.Metrics[n].FuncFloat64()(memStats))
-		storage.Put(name, value)
+		storage.Put(name, &value)
 	}
 }
 
@@ -57,9 +57,9 @@ func putCustom(storage *memory.MemStorage, n types.Name) {
 	switch n {
 	case types.PollCount:
 		value := fmt.Sprintf("%d", cnt.Add(1))
-		storage.Put(name, value)
+		storage.Put(name, &value)
 	case types.RandomValue:
 		value := fmt.Sprintf("%d", rand.Int())
-		storage.Put(name, value)
+		storage.Put(name, &value)
 	}
 }

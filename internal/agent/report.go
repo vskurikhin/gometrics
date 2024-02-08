@@ -36,8 +36,8 @@ func post(n types.Name, storage *memory.MemStorage, client *http.Client) {
 	name := metric.String()
 	value := storage.Get(name)
 
-	if value != "" {
-		path := urlPrintf(metric.MetricType(), metric, part(value))
+	if value != nil {
+		path := urlPrintf(metric.MetricType(), metric, part(*value))
 		request, err := http.NewRequest(http.MethodPost, path, nil)
 		if err != nil {
 			panic(err)

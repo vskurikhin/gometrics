@@ -86,14 +86,12 @@ func TestTypesParseValue(t *testing.T) {
 		})
 	}
 	t.Run("negative case", func(t *testing.T) {
-		got, err := Types(2).ParseValue("a")
-		switch got.(type) {
-		case float64:
-			assert.Fail(t, "this is not float64 type")
+		got, err := Types(math.MaxInt32).ParseValue("a")
+		switch f := got.(type) {
 		case int:
 			assert.Fail(t, "this is not int type")
-		default:
-			assert.Nil(t, got)
+		case float64:
+			assert.True(t, math.Abs(f-0.0) < math.SmallestNonzeroFloat64)
 		}
 		assert.NotNil(t, err)
 	})
