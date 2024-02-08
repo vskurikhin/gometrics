@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-08 17:21 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-08 21:58 by Victor N. Skurikhin.
  * metrics_test.go
  * $Id$
  */
@@ -19,8 +19,8 @@ func TestMetricGetMetric(t *testing.T) {
 		input Name
 		want  *metric
 	}{
-		{"Test GetMetric() method of Alloc with type Name", Alloc, &Metrics[Alloc]},
-		{"Test GetMetric() method of RandomValue with type Name", RandomValue, &Metrics[RandomValue]},
+		{"Test GetMetric() method of Alloc with type Number", Alloc, &Metrics[Alloc]},
+		{"Test GetMetric() method of RandomValue with type Number", RandomValue, &Metrics[RandomValue]},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-08 21:41 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-08 22:01 by Victor N. Skurikhin.
  * update_handler.go
  * $Id$
  */
@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/vskurikhin/gometrics/internal/parser"
 	"github.com/vskurikhin/gometrics/internal/storage/memory"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"net/http"
 	"os"
 )
@@ -33,13 +32,6 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var name string
-	if parsed.Name() > 0 {
-		name = parsed.String()
-
-	} else {
-		path := util.SplitPath(r)
-		name = path[2]
-	}
+	name := parsed.String()
 	storage.Put(name, parsed.CalcValue(storage.Get(name)))
 }

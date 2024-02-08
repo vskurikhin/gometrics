@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-08 11:04 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-08 21:58 by Victor N. Skurikhin.
  * metric_name_test.go
  * $Id$
  */
@@ -17,8 +17,8 @@ func TestNameString(t *testing.T) {
 		input Name
 		want  string
 	}{
-		{"Test String() method of Alloc with type Name", Alloc, "Alloc"},
-		{"Test String() method of RandomValue with type Name", RandomValue, "RandomValue"},
+		{"Test String() method of Alloc with type Number", Alloc, "Alloc"},
+		{"Test String() method of RandomValue with type Number", RandomValue, "RandomValue"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -34,8 +34,8 @@ func TestNameURLPath(t *testing.T) {
 		input Name
 		want  string
 	}{
-		{"Test URLPath() method of Alloc with type Name", Alloc, "alloc"},
-		{"Test URLPath() method of RandomValue with type Name", RandomValue, "randomvalue"},
+		{"Test URLPath() method of Alloc with type Number", Alloc, "alloc"},
+		{"Test URLPath() method of RandomValue with type Number", RandomValue, "randomvalue"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -51,8 +51,8 @@ func TestLookup(t *testing.T) {
 		input string
 		want  Name
 	}{
-		{"Test Lookup() function for Alloc with type Name", "alloc", Alloc},
-		{"Test Lookup() function for RandomValue with type Name", "RandomValue", RandomValue},
+		{"Test Lookup() function for Alloc with type Number", "alloc", Alloc},
+		{"Test Lookup() function for RandomValue with type Number", "RandomValue", RandomValue},
 		{"Test Lookup() function for __NONE__", "__NONE__", _none},
 	}
 	for _, test := range tests {
