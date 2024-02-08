@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-02-08 08:55 by Victor N. Skurikhin.
- * Parser.go
+ * This file was last modified at 2024-02-08 22:01 by Victor N. Skurikhin.
+ * parser.go
  * $Id$
  */
 
@@ -18,6 +18,7 @@ type Parser struct {
 	r        *http.Request
 	t        types.Types
 	n        types.Name
+	name     string
 	original string
 	value    interface{}
 	status   int
@@ -47,18 +48,25 @@ func parseType(r *http.Request, path []string) (*Parser, error) {
 
 func parseName(r *http.Request, t types.Types, path []string) (*Parser, error) {
 
-	value := path[3]
+	num := types.Lookup(path[2])
+	var name string
+	if num > 0 {
+		name = num.String()
+	} else {
+		name = path[2]
+	}
 
-	v, err := t.ParseValue(value)
+	value, err := t.ParseValue(path[3])
 	if err != nil {
 		return &Parser{status: http.StatusBadRequest}, err
 	}
 	return &Parser{
 		r: r, t: t,
-		n:        types.Lookup(path[2]),
+		n:        num,
+		name:     name,
+		original: path[3],
+		value:    value,
 		status:   http.StatusOK,
-		original: value,
-		value:    v,
 	}, nil
 }
 
@@ -67,19 +75,7 @@ func errorParser(r *http.Request, status int) (*Parser, error) {
 }
 
 func (p *Parser) String() string {
-	return p.n.String()
-}
-
-func (p *Parser) Name() int {
-	return int(p.n)
-}
-
-func (p *Parser) MetricType() types.Types {
-	return p.t
-}
-
-func (p *Parser) Original() string {
-	return p.original
+	return p.name
 }
 
 func (p *Parser) Value() interface{} {
@@ -96,12 +92,12 @@ func (p *Parser) CalcValue(get *string) *string {
 		return &p.original
 	}
 
-	old, err := p.MetricType().ParseValue(*get)
+	old, err := p.t.ParseValue(*get)
 	if err != nil {
 		return nil
 	}
 
-	switch v := p.Value().(type) {
+	switch v := p.value.(type) {
 	case float64:
 		return &p.original
 	case int:
