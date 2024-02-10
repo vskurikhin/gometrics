@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-08 22:01 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-10 15:27 by Victor N. Skurikhin.
  * update_handler.go
  * $Id$
  */
@@ -16,19 +16,19 @@ import (
 
 var storage = memory.Instance()
 
-func UpdateHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateHandler(response http.ResponseWriter, request *http.Request) {
 
 	defer func() {
 		if p := recover(); p != nil {
 			//goland:noinspection GoUnhandledErrorResult
 			fmt.Fprintf(os.Stderr, "update error: %v", p)
-			w.WriteHeader(http.StatusNotFound)
+			response.WriteHeader(http.StatusNotFound)
 		}
 	}()
 
-	parsed, err := parser.Parse(r)
+	parsed, err := parser.Parse(request)
 	if err != nil || parsed.Value() == nil {
-		w.WriteHeader(parsed.Status())
+		response.WriteHeader(parsed.Status())
 		return
 	}
 

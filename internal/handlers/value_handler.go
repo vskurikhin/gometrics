@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-02-04 13:29 by Victor N. Skurikhin.
- * update_handler.go
+ * This file was last modified at 2024-02-10 15:27 by Victor N. Skurikhin.
+ * value_handler.go
  * $Id$
  */
 
@@ -14,29 +14,29 @@ import (
 	"net/http"
 )
 
-func ValueHandler(w http.ResponseWriter, r *http.Request) {
+func ValueHandler(response http.ResponseWriter, request *http.Request) {
 
-	typ := chi.URLParam(r, "type")
-	name := chi.URLParam(r, "name")
-	n := types.Lookup(name)
+	typ := chi.URLParam(request, "type")
+	name := chi.URLParam(request, "name")
+	num := types.Lookup(name)
 
-	if n < 1 || n.GetMetric().MetricType().Eq(typ) {
+	if num < 1 || num.GetMetric().MetricType().Eq(typ) {
 		var value *string
-		if n > 0 {
-			value = storage.Get(n.String())
+		if num > 0 {
+			value = storage.Get(num.String())
 		} else {
 			value = storage.Get(name)
 		}
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		response.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		if value == nil {
-			w.WriteHeader(http.StatusNotFound)
+			response.WriteHeader(http.StatusNotFound)
 			return
 		}
-		_, err := io.WriteString(w, fmt.Sprintf("%s\n", *value))
+		_, err := io.WriteString(response, fmt.Sprintf("%s\n", *value))
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			response.WriteHeader(http.StatusBadRequest)
 		}
 		return
 	}
-	w.WriteHeader(http.StatusNotFound)
+	response.WriteHeader(http.StatusNotFound)
 }
