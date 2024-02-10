@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 16:09 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-10 23:44 by Victor N. Skurikhin.
  * poll.go
  * $Id$
  */
@@ -9,7 +9,7 @@ package agent
 import (
 	"fmt"
 	"github.com/vskurikhin/gometrics/api/types"
-	"github.com/vskurikhin/gometrics/cmd/cflag"
+	"github.com/vskurikhin/gometrics/cmd/env"
 	"github.com/vskurikhin/gometrics/internal/storage/memory"
 	"math/rand"
 	"runtime"
@@ -29,7 +29,7 @@ func Poll(enabled []types.Name) {
 			putSample(storage, memStats, i)
 			putCustom(storage, i)
 		}
-		time.Sleep(cflag.AgentFlags.PollInterval() * time.Second)
+		time.Sleep(env.Agent.PollInterval() * time.Second)
 	}
 }
 

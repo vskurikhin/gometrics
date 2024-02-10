@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 15:27 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-10 23:58 by Victor N. Skurikhin.
  * parser.go
  * $Id$
  */
@@ -14,19 +14,19 @@ import (
 	"net/http"
 )
 
-type Parser struct {
-	r        *http.Request
-	t        types.Types
-	n        types.Name
-	name     string
-	original string
-	value    interface{}
-	status   int
+type parser struct {
+	request       *http.Request
+	type_         types.Types
+	number        types.Name
+	name          string
+	originalValue string
+	parsedValue   interface{}
+	httpStatus    int
 }
 
 const FixedPathLength = 4
 
-func Parse(r *http.Request) (*Parser, error) {
+func Parse(r *http.Request) (*parser, error) {
 
 	path := util.SplitPath(r)
 	if len(path) < FixedPathLength || r.Method != http.MethodPost {
@@ -35,7 +35,7 @@ func Parse(r *http.Request) (*Parser, error) {
 	return parseType(r, path)
 }
 
-func parseType(r *http.Request, path []string) (*Parser, error) {
+func parseType(r *http.Request, path []string) (*parser, error) {
 
 	switch {
 	case types.COUNTER.Eq(path[1]):
@@ -46,7 +46,7 @@ func parseType(r *http.Request, path []string) (*Parser, error) {
 	return errorParser(r, http.StatusBadRequest)
 }
 
-func parseName(r *http.Request, t types.Types, path []string) (*Parser, error) {
+func parseName(r *http.Request, t types.Types, path []string) (*parser, error) {
 
 	num := types.Lookup(path[2])
 	var name string
@@ -58,53 +58,53 @@ func parseName(r *http.Request, t types.Types, path []string) (*Parser, error) {
 
 	value, err := t.ParseValue(path[3])
 	if err != nil {
-		return &Parser{status: http.StatusBadRequest}, err
+		return &parser{httpStatus: http.StatusBadRequest}, err
 	}
-	return &Parser{
-		r:        r,
-		t:        t,
-		n:        num,
-		name:     name,
-		original: path[3],
-		value:    value,
-		status:   http.StatusOK,
+	return &parser{
+		request:       r,
+		type_:         t,
+		number:        num,
+		name:          name,
+		originalValue: path[3],
+		parsedValue:   value,
+		httpStatus:    http.StatusOK,
 	}, nil
 }
 
-func errorParser(r *http.Request, status int) (*Parser, error) {
-	return &Parser{status: status}, errors.New("can't Parse request" + util.FormatRequest(r))
+func errorParser(r *http.Request, status int) (*parser, error) {
+	return &parser{httpStatus: status}, errors.New("can'type_ Parse request" + util.FormatRequest(r))
 }
 
-func (p *Parser) String() string {
+func (p *parser) String() string {
 	return p.name
 }
 
-func (p *Parser) Value() interface{} {
-	return p.value
+func (p *parser) Value() interface{} {
+	return p.parsedValue
 }
 
-func (p *Parser) Status() int {
-	return p.status
+func (p *parser) Status() int {
+	return p.httpStatus
 }
 
-func (p *Parser) CalcValue(get *string) *string {
+func (p *parser) CalcValue(get *string) *string {
 
 	if get == nil {
-		return &p.original
+		return &p.originalValue
 	}
 
-	old, err := p.t.ParseValue(*get)
+	old, err := p.type_.ParseValue(*get)
 	if err != nil {
 		return nil
 	}
 
-	switch v := p.value.(type) {
+	switch v := p.parsedValue.(type) {
 	case float64:
-		return &p.original
+		return &p.originalValue
 	case int:
-		o := switchCase(old)
+		o := typeAssertionInt(old)
 		if o == nil {
-			return &p.original
+			return &p.originalValue
 		}
 		result := fmt.Sprintf("%d", v+*o)
 		return &result
@@ -113,7 +113,7 @@ func (p *Parser) CalcValue(get *string) *string {
 	}
 }
 
-func switchCase(i interface{}) *int {
+func typeAssertionInt(i interface{}) *int {
 	switch o := i.(type) {
 	case int:
 		return &o

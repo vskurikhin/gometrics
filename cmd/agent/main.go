@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 16:23 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-10 23:44 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -7,9 +7,8 @@
 package main
 
 import (
-	"github.com/spf13/pflag"
 	t "github.com/vskurikhin/gometrics/api/types"
-	"github.com/vskurikhin/gometrics/cmd/cflag"
+	"github.com/vskurikhin/gometrics/cmd/env"
 	"github.com/vskurikhin/gometrics/internal/agent"
 )
 
@@ -21,8 +20,8 @@ var enabled = []t.Name{t.Alloc, t.BuckHashSys, t.Frees, t.GCCPUFraction, t.GCSys
 
 func main() {
 
-	cflag.InitAgent()
-	pflag.Parse()
+	env.InitAgent()
+
 	go agent.Poll(enabled)
 	agent.Report(enabled)
 }

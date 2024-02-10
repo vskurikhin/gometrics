@@ -3,6 +3,7 @@ module github.com/vskurikhin/gometrics
 go 1.21.1
 
 require (
+	github.com/caarlos0/env v3.5.0+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-chi/chi v1.5.5 // indirect
 	github.com/go-chi/chi/v5 v5.0.11 // indirect

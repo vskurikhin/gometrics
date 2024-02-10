@@ -1,10 +1,10 @@
 /*
- * This file was last modified at 2024-02-10 15:07 by Victor N. Skurikhin.
- * server.go
+ * This file was last modified at 2024-02-10 23:44 by Victor N. Skurikhin.
+ * server_flags.go
  * $Id$
  */
 
-package cflag
+package env
 
 type serverFlags struct {
 	serverAddress *string
