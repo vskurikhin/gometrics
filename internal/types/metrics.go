@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-02-08 08:43 by Victor N. Skurikhin.
- * metric_name.go
+ * This file was last modified at 2024-02-11 00:04 by Victor N. Skurikhin.
+ * metrics.go
  * $Id$
  */
 

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 16:09 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-11 00:39 by Victor N. Skurikhin.
  * poll.go
  * $Id$
  */
@@ -8,9 +8,9 @@ package agent
 
 import (
 	"fmt"
-	"github.com/vskurikhin/gometrics/api/types"
-	"github.com/vskurikhin/gometrics/cmd/cflag"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/storage/memory"
+	types2 "github.com/vskurikhin/gometrics/internal/types"
 	"math/rand"
 	"runtime"
 	"sync/atomic"
@@ -19,7 +19,7 @@ import (
 
 var cnt = atomic.Uint64{}
 
-func Poll(enabled []types.Name) {
+func Poll(enabled []types2.Name) {
 
 	memStats := new(runtime.MemStats)
 	storage := memory.Instance()
@@ -29,36 +29,36 @@ func Poll(enabled []types.Name) {
 			putSample(storage, memStats, i)
 			putCustom(storage, i)
 		}
-		time.Sleep(cflag.AgentFlags.PollInterval() * time.Second)
+		time.Sleep(env.Agent.PollInterval() * time.Second)
 	}
 }
 
-func putSample(storage *memory.MemStorage, memStats *runtime.MemStats, n types.Name) {
+func putSample(storage *memory.MemStorage, memStats *runtime.MemStats, n types2.Name) {
 
 	metric := n.GetMetric()
 	name := metric.String()
 	switch metric.Type().(type) {
 	case uint64:
-		value := fmt.Sprintf("%d", types.Metrics[n].FuncUint64()(memStats))
+		value := fmt.Sprintf("%d", types2.Metrics[n].FuncUint64()(memStats))
 		storage.Put(name, &value)
 	case uint32:
-		value := fmt.Sprintf("%d", types.Metrics[n].FuncUint32()(memStats))
+		value := fmt.Sprintf("%d", types2.Metrics[n].FuncUint32()(memStats))
 		storage.Put(name, &value)
 	case float64:
-		value := fmt.Sprintf("%f", types.Metrics[n].FuncFloat64()(memStats))
+		value := fmt.Sprintf("%f", types2.Metrics[n].FuncFloat64()(memStats))
 		storage.Put(name, &value)
 	}
 }
 
-func putCustom(storage *memory.MemStorage, n types.Name) {
+func putCustom(storage *memory.MemStorage, n types2.Name) {
 
 	metric := n.GetMetric()
 	name := metric.String()
 	switch n {
-	case types.PollCount:
+	case types2.PollCount:
 		value := fmt.Sprintf("%d", cnt.Add(1))
 		storage.Put(name, &value)
-	case types.RandomValue:
+	case types2.RandomValue:
 		value := fmt.Sprintf("%d", rand.Int())
 		storage.Put(name, &value)
 	}

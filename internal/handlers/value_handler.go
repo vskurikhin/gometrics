@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 15:27 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-11 00:04 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -9,7 +9,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/vskurikhin/gometrics/api/types"
+	"github.com/vskurikhin/gometrics/internal/types"
 	"io"
 	"net/http"
 )

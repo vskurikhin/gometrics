@@ -1,10 +1,10 @@
 /*
- * This file was last modified at 2024-02-10 16:09 by Victor N. Skurikhin.
- * agent.go
+ * This file was last modified at 2024-02-10 23:59 by Victor N. Skurikhin.
+ * agent_flags.go
  * $Id$
  */
 
-package cflag
+package env
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ import (
 type agentFlags struct {
 	serverFlags
 	urlHost        *string
-	reportInterval *int
-	pollInterval   *int
+	reportInterval *time.Duration
+	pollInterval   *time.Duration
 }
 
 func (af *agentFlags) URLHost() *string {
@@ -31,9 +31,9 @@ func (af *agentFlags) URLHost() *string {
 }
 
 func (af *agentFlags) ReportInterval() time.Duration {
-	return time.Duration(*af.reportInterval)
+	return *af.reportInterval
 }
 
 func (af *agentFlags) PollInterval() time.Duration {
-	return time.Duration(*af.pollInterval)
+	return *af.pollInterval
 }
