@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-07 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-10 16:52 by Victor N. Skurikhin.
  * report.go
  * $Id$
  */
@@ -7,12 +7,10 @@
 package agent
 
 import (
-	"fmt"
-	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/api/types"
+	"github.com/vskurikhin/gometrics/cmd/cflag"
 	"github.com/vskurikhin/gometrics/internal/storage/memory"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -26,7 +24,7 @@ func Report(enabled []types.Name) {
 		for _, i := range enabled {
 			post(i, storage, &client)
 		}
-		time.Sleep(names.ReportInterval * time.Second)
+		time.Sleep(cflag.AgentFlags.ReportInterval() * time.Second)
 	}
 }
 
@@ -51,10 +49,11 @@ func postDo(request *http.Request, client *http.Client) {
 	request.Header.Add("Content-Type", "text/plain")
 	response, err := client.Do(request)
 	defer func() {
-		err = response.Body.Close()
-		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "post error: %v", err)
+		if response != nil {
+			//goland:noinspection GoUnhandledErrorResult
+			response.Body.Close()
 		}
+		recover()
 	}()
 	if err != nil {
 		panic(err)
@@ -63,7 +62,7 @@ func postDo(request *http.Request, client *http.Client) {
 
 func urlPrintf(parts ...urlPart) string {
 
-	path := names.UpdateURLClient
+	path := *cflag.AgentFlags.URLHost()
 	for _, part := range parts {
 		path += "/" + part.URLPath()
 	}

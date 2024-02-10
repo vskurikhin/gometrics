@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-08 22:01 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-10 15:27 by Victor N. Skurikhin.
  * parser.go
  * $Id$
  */
@@ -61,7 +61,8 @@ func parseName(r *http.Request, t types.Types, path []string) (*Parser, error) {
 		return &Parser{status: http.StatusBadRequest}, err
 	}
 	return &Parser{
-		r: r, t: t,
+		r:        r,
+		t:        t,
 		n:        num,
 		name:     name,
 		original: path[3],
