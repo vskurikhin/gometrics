@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 16:52 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-10 23:50 by Victor N. Skurikhin.
  * report.go
  * $Id$
  */
@@ -8,7 +8,7 @@ package agent
 
 import (
 	"github.com/vskurikhin/gometrics/api/types"
-	"github.com/vskurikhin/gometrics/cmd/cflag"
+	"github.com/vskurikhin/gometrics/cmd/env"
 	"github.com/vskurikhin/gometrics/internal/storage/memory"
 	"net/http"
 	"time"
@@ -16,15 +16,13 @@ import (
 
 func Report(enabled []types.Name) {
 
-	client := http.Client{
-		Timeout: time.Second * 1, // интервал ожидания: 1 секунда
-	}
+	client := http.Client{}
 	storage := memory.Instance()
 	for {
+		time.Sleep(env.Agent.ReportInterval() * time.Second)
 		for _, i := range enabled {
 			post(i, storage, &client)
 		}
-		time.Sleep(cflag.AgentFlags.ReportInterval() * time.Second)
 	}
 }
 
@@ -62,7 +60,8 @@ func postDo(request *http.Request, client *http.Client) {
 
 func urlPrintf(parts ...urlPart) string {
 
-	path := *cflag.AgentFlags.URLHost()
+	path := *env.Agent.URLHost()
+
 	for _, part := range parts {
 		path += "/" + part.URLPath()
 	}
