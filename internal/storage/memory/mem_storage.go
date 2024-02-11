@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-08 21:41 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-11 13:51 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -11,14 +11,14 @@ import (
 )
 
 type MemStorage struct {
-	mu      sync.RWMutex
-	Metrics map[string]*string
+	sync.RWMutex
+	metrics map[string]*string
 }
 
 var mem = new(MemStorage)
 
 func init() {
-	mem.Metrics = make(map[string]*string)
+	mem.metrics = make(map[string]*string)
 }
 
 func Instance() *MemStorage {
@@ -27,15 +27,15 @@ func Instance() *MemStorage {
 
 func (m *MemStorage) Get(name string) *string {
 
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+	m.RLock()
+	defer m.RUnlock()
 
-	return m.Metrics[name]
+	return m.metrics[name]
 }
 
 func (m *MemStorage) Put(name string, value *string) {
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.Metrics[name] = value
+	m.Lock()
+	defer m.Unlock()
+	m.metrics[name] = value
 }

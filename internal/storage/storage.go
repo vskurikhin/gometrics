@@ -1,17 +1,13 @@
 /*
- * This file was last modified at 2024-02-11 00:04 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-12 20:43 by Victor N. Skurikhin.
  * storage.go
  * $Id$
  */
 
 package storage
 
-import (
-	"github.com/vskurikhin/gometrics/internal/types"
-)
-
 type Storage interface {
-	Get(name types.Name) (interface{}, error)
+	Get(name string) *string
 
-	Put(name types.Name, value interface{}) error
+	Put(name string, value *string)
 }
