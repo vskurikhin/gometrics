@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 00:21 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-11 15:55 by Victor N. Skurikhin.
  * parser.go
  * $Id$
  */
@@ -103,21 +103,16 @@ func (p *parser) CalcValue(get *string) *string {
 		return &p.originalValue
 	case int:
 		o := typeAssertionInt(old)
-		if o == nil {
-			return &p.originalValue
-		}
-		result := fmt.Sprintf("%d", v+*o)
+		result := fmt.Sprintf("%d", v+o)
 		return &result
-	default:
-		return nil
 	}
+	return nil
 }
 
-func typeAssertionInt(i interface{}) *int {
+func typeAssertionInt(i interface{}) int {
 	switch o := i.(type) {
 	case int:
-		return &o
-	default:
-		return nil
+		return o
 	}
+	return 0
 }

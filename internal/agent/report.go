@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 00:41 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-12 21:13 by Victor N. Skurikhin.
  * report.go
  * $Id$
  */
@@ -7,27 +7,37 @@
 package agent
 
 import (
+	"fmt"
 	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/storage"
 	"github.com/vskurikhin/gometrics/internal/storage/memory"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"net/http"
+	"net/url"
+	"os"
 	"time"
 )
 
 func Report(enabled []types.Name) {
 
 	client := http.Client{}
-	storage := memory.Instance()
+	memStorage := memory.Instance()
 	for {
-		time.Sleep(env.Agent.ReportInterval() * time.Second)
-		for _, i := range enabled {
-			post(i, storage, &client)
-		}
+		report(enabled, memStorage, &client)
 	}
 }
 
-func post(n types.Name, storage *memory.MemStorage, client *http.Client) {
+func report(enabled []types.Name, storage storage.Storage, client *http.Client) {
+
+	time.Sleep(env.Agent.ReportInterval() * time.Second)
+
+	for _, i := range enabled {
+		post(i, client, storage)
+	}
+}
+
+func post(n types.Name, client *http.Client, storage storage.Storage) {
 
 	metric := n.GetMetric()
 	name := metric.String()
@@ -39,11 +49,22 @@ func post(n types.Name, storage *memory.MemStorage, client *http.Client) {
 		if err != nil {
 			panic(err)
 		}
-		postDo(request, client)
+		postDo(client, request)
 	}
 }
 
-func postDo(request *http.Request, client *http.Client) {
+func postDo(client *http.Client, request *http.Request) {
+
+	defer func() {
+		if p := recover(); p != nil {
+			switch p.(type) {
+			case *url.Error:
+			default:
+				//goland:noinspection GoUnhandledErrorResult
+				fmt.Fprintf(os.Stderr, "post error: %T", p)
+			}
+		}
+	}()
 
 	request.Header.Add("Content-Type", "text/plain")
 	response, err := client.Do(request)
@@ -52,8 +73,8 @@ func postDo(request *http.Request, client *http.Client) {
 			//goland:noinspection GoUnhandledErrorResult
 			response.Body.Close()
 		}
-		recover()
 	}()
+
 	if err != nil {
 		panic(err)
 	}

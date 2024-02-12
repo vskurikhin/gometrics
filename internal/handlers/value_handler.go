@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 00:04 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-11 15:02 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -27,6 +27,7 @@ func ValueHandler(response http.ResponseWriter, request *http.Request) {
 		} else {
 			value = storage.Get(name)
 		}
+
 		response.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		if value == nil {
 			response.WriteHeader(http.StatusNotFound)

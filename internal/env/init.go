@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 23:59 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-11 17:04 by Victor N. Skurikhin.
  * init.go
  * $Id$
  */
@@ -22,11 +22,12 @@ var (
 	Server = serverEnv{}
 )
 
+var cfg config
+
 func InitAgent() {
 
 	initAgentFlags()
 
-	var cfg config
 	err := env.Parse(&cfg)
 	if err != nil {
 		log.Fatal(err)
