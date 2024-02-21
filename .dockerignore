@@ -1,0 +1,4 @@
+*
+cmd/agent/*.go
+cmd/server/*.go
+!cmd/*

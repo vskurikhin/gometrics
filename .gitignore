@@ -18,8 +18,31 @@ cmd/server/main
 cmd/server/server
 
 # Dependency directories (remove the comment below to include it)
+bin/
 vendor/
 
 # IDEs directories
+
+# IntelliJ
 .idea
+*.ipr
+*.iml
+*.iws
+
+# Visual Studio Code
 .vscode
+.factorypath
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Local environment
+.env
