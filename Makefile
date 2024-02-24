@@ -16,6 +16,12 @@ PID=/tmp/.$(PROJECTNAME).pid
 PID_AGENT=/tmp/.$(PROJECTNAME)-agent.pid
 PID_SERVER=/tmp/.$(PROJECTNAME)-server.pid
 
+RANDOM=$(shell date +%s)
+RND=$(shell echo "("$RANDOM" % 2039) + 63490" | bc)
+SERVER_PORT=$(RND)
+ADDRESS=localhost:$(SERVER_PORT)
+TEMP_FILE=$(shell mktemp)
+
 # Make is verbose in Linux. Make it silent.
 MAKEFLAGS += --silent
 
@@ -51,6 +57,7 @@ stop-agent:
 
 restart-server: stop-server start-server
 
+build: go-build-agent go-build-server
 
 ## clean: Clean build files. Runs `go clean` internally.
 clean:
@@ -81,6 +88,30 @@ go-install:
 go-clean:
 	@echo "  >  Cleaning build cache"
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
+
+test6: test5
+	@echo "  > Test Iteration 5 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration6$$ -agent-binary-path=./agent -binary-path=./server -server-port=$(SERVER_PORT) -source-path=../.
+
+test5: test4
+	@echo "  > Test Iteration 5 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration5$$ -agent-binary-path=./agent -binary-path=./server -server-port=$(SERVER_PORT) -source-path=../.
+
+test4: test3
+	@echo "  > Test Iteration 4 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration4$$ -agent-binary-path=./agent -binary-path=./server -server-port=$(SERVER_PORT) -source-path=../.
+
+test3: test2
+	@echo "  > Test Iteration 3 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration3[AB]*$$ -source-path=../. -agent-binary-path=./agent -binary-path=./server
+
+test2: test1
+	@echo "  > Test Iteration 1 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration2[AB]*$$ -source-path=../. -agent-binary-path=./agent
+
+test1:
+	@echo "  > Test Iteration 1 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration1$$ -binary-path=./server
 
 .PHONY: help
 all: help
