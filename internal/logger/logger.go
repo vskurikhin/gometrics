@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-24 17:08 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:50 by Victor N. Skurikhin.
  * logger.go
  * $Id$
  */
@@ -11,27 +11,17 @@ import (
 )
 
 // Log будет доступен всему коду как синглтон.
-// Никакой код навыка, кроме функции InitLogger, не должен модифицировать эту переменную.
-// По умолчанию установлен no-op-логер, который не выводит никаких сообщений.
-var Log *zap.Logger = zap.NewExample()
+var Log *zap.Logger
 
-// Initialize инициализирует синглтон логера с необходимым уровнем логирования.
-func Initialize(level string) error {
-	// преобразуем текстовый уровень логирования в zap.AtomicLevel
-	lvl, err := zap.ParseAtomicLevel(level)
-	if err != nil {
-		return err
+//goland:noinspection GoUnhandledErrorResult
+func init() {
+	if false {
+		logger, _ := zap.NewProduction()
+		defer logger.Sync() // flushes buffer, if any
+		Log := logger.Sugar()
+		_ = Log
+	} else {
+		Log = zap.NewExample()
+		defer Log.Sync()
 	}
-	// создаём новую конфигурацию логера
-	cfg := zap.NewProductionConfig()
-	// устанавливаем уровень
-	cfg.Level = lvl
-	// создаём логер на основе конфигурации
-	zl, err := cfg.Build()
-	if err != nil {
-		return err
-	}
-	// устанавливаем синглтон
-	Log = zl
-	return nil
 }

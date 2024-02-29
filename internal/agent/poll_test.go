@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-12 20:47 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
  * poll_test.go
  * $Id$
  */
@@ -32,7 +32,7 @@ func TestPoll(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			poll(test.input, memStats, memStorage)
+			poll(test.input, memStats)
 			got := memStorage.Get(test.want)
 			assert.NotNil(t, got)
 		})

@@ -47,3 +47,6 @@ vendor/
 
 # Local environment
 .env
+
+# Local logging
+*.log

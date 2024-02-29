@@ -82,6 +82,17 @@ go-get:
 	@echo "  >  Checking if there is any missing dependencies..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go get $(get)
 
+.PHONY: go-update-deps
+go-update-deps:
+	@echo ">> updating Go dependencies"
+	@for m in $$(go list -mod=readonly -m -f '{{ if and (not .Indirect) (not .Main)}}{{.Path}}{{end}}' all); do \
+		go get $$m; \
+	done
+	go mod tidy
+ifneq (,$(wildcard vendor))
+	go mod vendor
+endif
+
 go-install:
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go install $(GOFILES)
 
@@ -89,8 +100,12 @@ go-clean:
 	@echo "  >  Cleaning build cache"
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
 
+test7:
+	@echo "  > Test Iteration 7 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration7$$ -agent-binary-path=./agent -binary-path=./server -server-port=$(SERVER_PORT) -source-path=../.
+
 test6: test5
-	@echo "  > Test Iteration 5 ..."
+	@echo "  > Test Iteration 6 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration6$$ -agent-binary-path=./agent -binary-path=./server -server-port=$(SERVER_PORT) -source-path=../.
 
 test5: test4

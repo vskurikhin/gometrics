@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 13:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -7,6 +7,7 @@
 package memory
 
 import (
+	"github.com/vskurikhin/gometrics/internal/storage"
 	"sync"
 )
 
@@ -21,7 +22,7 @@ func init() {
 	mem.metrics = make(map[string]*string)
 }
 
-func Instance() *MemStorage {
+func Instance() storage.Storage {
 	return mem
 }
 

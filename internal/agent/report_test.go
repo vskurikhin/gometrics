@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-12 21:05 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
  * report_test.go
  * $Id$
  */
@@ -8,7 +8,6 @@ package agent
 
 import (
 	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/storage/memory"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +23,6 @@ func TestReport(t *testing.T) {
 	defer server.Close()
 
 	client := server.Client()
-	memStorage := memory.Instance()
 
 	var tests = []struct {
 		name   string
@@ -36,7 +34,7 @@ func TestReport(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			report(test.input1, memStorage, client)
+			report(test.input1, client)
 		})
 	}
 }
