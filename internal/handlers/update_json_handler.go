@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 23:37 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 13:19 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -9,6 +9,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/mailru/easyjson"
+	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/types"
@@ -20,6 +21,10 @@ import (
 )
 
 func UpdateJSONHandler(response http.ResponseWriter, request *http.Request) {
+	compress.ZHandleWrapper(response, request, plainUpdateJSONHandler)
+}
+
+func plainUpdateJSONHandler(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(updateJSONHandler(response, request))
 }
 
@@ -29,7 +34,6 @@ func updateJSONHandler(response http.ResponseWriter, request *http.Request) (sta
 
 	defer func() {
 		if p := recover(); p != nil {
-
 			logger.Log.Debug("func UpdateJSONHandler", zap.String("error", fmt.Sprintf("%v", p)))
 			status = http.StatusNotFound
 		}
@@ -47,15 +51,7 @@ func updateJSON(response http.ResponseWriter, request *http.Request) {
 		panic(err)
 	}
 
-	zapFields := util.MakeZapFields()
-	zapFields.Append("metric", metric)
-
-	if metric.Value != nil {
-		zapFields.AppendFloat("Value", *metric.Value)
-	}
-	if metric.Delta != nil {
-		zapFields.AppendInt("Delta", *metric.Delta)
-	}
+	zapFields := util.ZapFieldsMetric(&metric)
 	logger.Log.Debug("got incoming HTTP request with JSON in updateJSON", zapFields...)
 	updateMetric(&metric)
 

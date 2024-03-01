@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 23:17 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 13:19 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -9,9 +9,11 @@ package handlers
 import (
 	"fmt"
 	"github.com/mailru/easyjson"
+	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/types"
+	"github.com/vskurikhin/gometrics/internal/util"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -19,6 +21,10 @@ import (
 )
 
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
+	compress.ZHandleWrapper(response, request, plainValueJSONHandler)
+}
+
+func plainValueJSONHandler(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(valueJSONHandler(response, request))
 }
 
@@ -28,7 +34,6 @@ func valueJSONHandler(response http.ResponseWriter, request *http.Request) (stat
 
 	defer func() {
 		if p := recover(); p != nil {
-
 			logger.Log.Debug("func ValueJSONHandler", zap.String("error", fmt.Sprintf("%v", p)))
 			status = http.StatusNotFound
 		}
@@ -45,10 +50,8 @@ func valueJSON(response http.ResponseWriter, request *http.Request) {
 	if err := easyjson.UnmarshalFromReader(request.Body, &metric); err != nil {
 		panic(err)
 	}
-	logger.Log.Debug(
-		"got incoming HTTP request with JSON in ValueJSONHandler",
-		zap.String("metric", fmt.Sprintf("%+v", metric)),
-	)
+	zapFields := util.ZapFieldsMetric(&metric)
+	logger.Log.Debug("got incoming HTTP request with JSON in valueJSON", zapFields...)
 	valueMetric(&metric)
 
 	if _, err := easyjson.MarshalToWriter(metric, response); err != nil {

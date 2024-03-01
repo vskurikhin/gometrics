@@ -100,7 +100,11 @@ go-clean:
 	@echo "  >  Cleaning build cache"
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
 
-test7:
+test8:
+	@echo "  > Test Iteration 8 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration8$$ -agent-binary-path=./agent -binary-path=./server -server-port=$(SERVER_PORT) -source-path=../.
+
+test7: test6
 	@echo "  > Test Iteration 7 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration7$$ -agent-binary-path=./agent -binary-path=./server -server-port=$(SERVER_PORT) -source-path=../.
 

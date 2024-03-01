@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:50 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 13:19 by Victor N. Skurikhin.
  * report.go
  * $Id$
  */
@@ -8,6 +8,7 @@ package agent
 
 import (
 	"bytes"
+	"compress/gzip"
 	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/vskurikhin/gometrics/api/names"
@@ -16,6 +17,7 @@ import (
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"go.uber.org/zap"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -39,6 +41,7 @@ func report(enabled []types.Name, client *http.Client) {
 	}
 }
 
+//goland:noinspection GoUnhandledErrorResult
 func post(n types.Name, client *http.Client) {
 
 	name := n.GetMetric().String()
@@ -67,16 +70,27 @@ func post(n types.Name, client *http.Client) {
 			}
 			metric.Value = &f64
 		}
+		var b1 bytes.Buffer
 
-		var b bytes.Buffer
-		if _, err := easyjson.MarshalToWriter(metric, &b); err != nil {
+		if _, err := easyjson.MarshalToWriter(metric, &b1); err != nil {
 			panic(err)
 		}
+		var b2 bytes.Buffer
+		gz, err := gzip.NewWriterLevel(&b2, gzip.BestSpeed)
 
-		request, err := http.NewRequest(http.MethodPost, path, &b)
+		if err != nil {
+			io.WriteString(&b1, err.Error())
+			return
+		}
+		gz.Write(b1.Bytes())
+		gz.Close()
+		request, err := http.NewRequest(http.MethodPost, path, &b2)
+
 		if err != nil {
 			panic(err)
 		}
+		request.Header.Add("Content-Type", "application/json")
+		request.Header.Add("Content-Encoding", "gzip")
 		postDo(client, request)
 	}
 }
@@ -95,12 +109,9 @@ func postDo(client *http.Client, request *http.Request) {
 			}
 		}
 	}()
-
-	request.Header.Add("Content-Type", "application/json")
 	response, err := client.Do(request)
 
 	defer func() {
-
 		if response != nil {
 			//goland:noinspection GoUnhandledErrorResult
 			response.Body.Close()

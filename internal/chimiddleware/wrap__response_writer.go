@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
- * wrap_Response_writer.go
+ * This file was last modified at 2024-03-01 21:41 by Victor N. Skurikhin.
+ * wrap__response_writer.go
  * $Id$
  */
 
