@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 13:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 19:42 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -51,7 +51,7 @@ func valueJSON(response http.ResponseWriter, request *http.Request) {
 		panic(err)
 	}
 	zapFields := util.ZapFieldsMetric(&metric)
-	logger.Log.Debug("got incoming HTTP request with JSON in valueJSON", zapFields...)
+	logger.Log.Debug("got incoming HTTP request with JSON in valueJSON", zapFields.Slice()...)
 	valueMetric(&metric)
 
 	if _, err := easyjson.MarshalToWriter(metric, response); err != nil {

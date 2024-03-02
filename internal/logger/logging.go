@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 23:37 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 19:41 by Victor N. Skurikhin.
  * logging.go
  * $Id$
  */
@@ -26,12 +26,12 @@ func Logging(next http.Handler) http.Handler {
 			iZapFields.Append("uri", r.RequestURI)
 			iZapFields.Append("method", r.Method)
 			iZapFields.Append("duration", time.Since(start))
-			Log.Debug("got incoming HTTP request", iZapFields...)
+			Log.Debug("got incoming HTTP request", iZapFields.Slice()...)
 
 			oZapFields := util.MakeZapFields()
 			oZapFields.AppendInt("status", ww.Status())
 			oZapFields.AppendInt("size", ww.BytesWritten())
-			Log.Debug("say outgoing HTTP response", oZapFields...)
+			Log.Debug("say outgoing HTTP response", oZapFields.Slice()...)
 		}()
 
 		next.ServeHTTP(ww, r)

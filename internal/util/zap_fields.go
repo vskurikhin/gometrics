@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-01 21:40 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 19:41 by Victor N. Skurikhin.
  * zap_fields.go
  * $Id$
  */
@@ -14,9 +14,22 @@ import (
 
 type zapFields []zap.Field
 
+type ZapFields interface {
+	Append(key string, metric interface{})
+
+	AppendInt(key string, metric interface{})
+
+	AppendFloat(key string, metric interface{})
+
+	AppendString(key string, s *string)
+
+	Slice() []zap.Field
+}
+
 //goland:noinspection GoExportedFuncWithUnexportedType
-func MakeZapFields() zapFields {
-	return make(zapFields, 0)
+func MakeZapFields() ZapFields {
+	result := make(zapFields, 0)
+	return &result
 }
 
 func (zf *zapFields) Append(key string, metric interface{}) {
@@ -31,8 +44,22 @@ func (zf *zapFields) AppendFloat(key string, metric interface{}) {
 	*zf = append(*zf, zap.String(key, fmt.Sprintf("%.12f", metric)))
 }
 
+func (zf *zapFields) AppendString(key string, s *string) {
+	if s != nil {
+		*zf = append(*zf, zap.String(key, *s))
+	} else {
+		*zf = append(*zf, zap.String(key, "nil"))
+	}
+}
+
+func (zf *zapFields) Slice() []zap.Field {
+	result := make([]zap.Field, len(*zf))
+	copy(result, *zf)
+	return result
+}
+
 //goland:noinspection GoExportedFuncWithUnexportedType
-func ZapFieldsMetric(metric *dto.Metrics) zapFields {
+func ZapFieldsMetric(metric *dto.Metrics) ZapFields {
 	zapFields := MakeZapFields()
 	zapFields.Append("metric", metric)
 

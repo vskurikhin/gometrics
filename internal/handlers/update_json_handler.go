@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 13:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 20:29 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -52,7 +52,7 @@ func updateJSON(response http.ResponseWriter, request *http.Request) {
 	}
 
 	zapFields := util.ZapFieldsMetric(&metric)
-	logger.Log.Debug("got incoming HTTP request with JSON in updateJSON", zapFields...)
+	logger.Log.Debug("got incoming HTTP request with JSON in updateJSON", zapFields.Slice()...)
 	updateMetric(&metric)
 
 	if _, err := easyjson.MarshalToWriter(metric, response); err != nil {
@@ -63,7 +63,7 @@ func updateJSON(response http.ResponseWriter, request *http.Request) {
 func updateMetric(metric *dto.Metrics) {
 
 	name := strings.ToLower(metric.ID)
-	value := store.Get(strings.ToLower(metric.ID))
+	value := store.Get(name)
 
 	switch {
 	case types.GAUGE.Eq(metric.MType):

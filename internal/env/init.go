@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-02 20:51 by Victor N. Skurikhin.
  * init.go
  * $Id$
  */
@@ -9,7 +9,6 @@ package env
 import (
 	"fmt"
 	"github.com/caarlos0/env"
-	"github.com/spf13/pflag"
 	"log"
 	"strconv"
 	"time"
@@ -81,26 +80,28 @@ func InitServer() {
 		address := parseEnvAddress(cfg)
 		Server.serverAddress = &address
 	}
-}
 
-func initAgentFlags() {
+	if cfg.StoreInterval == "" {
+		Server.storeInterval = sFlags.StoreInterval()
+	} else {
+		storeInterval, err := strconv.Atoi(cfg.StoreInterval)
+		if err == nil {
+			Server.storeInterval = time.Duration(storeInterval)
+		}
+	}
 
-	aFlags.serverAddress = pflag.StringP("address", "a", "localhost:8080", "help message for host and port")
+	if cfg.FileStoragePath == "" {
+		Server.fileStoragePath = *sFlags.fileStoragePath
+	} else {
+		Server.fileStoragePath = cfg.FileStoragePath
+	}
 
-	report := pflag.IntP("report-interval", "r", 10, "help message for report interval")
-	poll := pflag.IntP("poll-interval", "p", 2, "help message for poll interval")
-
-	pflag.Parse()
-
-	reportInterval := time.Duration(*report)
-	aFlags.reportInterval = &reportInterval
-
-	pollInterval := time.Duration(*poll)
-	aFlags.pollInterval = &pollInterval
-}
-
-func initServerFlags() {
-
-	sFlags.serverAddress = pflag.StringP("address", "a", "localhost:8080", "help message for host and port")
-	pflag.Parse()
+	if cfg.Restore == "" {
+		Server.restore = *sFlags.restore
+	} else {
+		restore, err := strconv.ParseBool(cfg.Restore)
+		if err == nil {
+			Server.restore = restore
+		}
+	}
 }
