@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 14:52 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
  * value_handler_test.go
  * $Id$
  */
@@ -89,9 +89,9 @@ func TestValueHandler(t *testing.T) {
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 			if test.input != "" {
-				storage.Put(test.variable, &test.input)
+				store.Put(test.variable, &test.input)
 			} else {
-				storage.Put(test.variable, nil)
+				store.Put(test.variable, nil)
 			}
 
 			ValueHandler(w, r)

@@ -16,6 +16,7 @@ cmd/agent/main
 cmd/agent/agent
 cmd/server/main
 cmd/server/server
+cmd/test/
 
 # Dependency directories (remove the comment below to include it)
 bin/
@@ -46,3 +47,6 @@ vendor/
 
 # Local environment
 .env
+
+# Local logging
+*.log

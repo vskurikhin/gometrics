@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 12:28 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
  * metric_type.go
  * $Id$
  */
@@ -25,13 +25,6 @@ const (
 
 var lower []string
 var types = [...]string{"Counter", "Gauge"}
-
-func init() {
-
-	for i := range types {
-		lower = append(lower, strings.ToLower(types[i]))
-	}
-}
 
 func (t Types) String() string {
 	return types[t]

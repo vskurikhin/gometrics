@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 15:02 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -23,9 +23,9 @@ func ValueHandler(response http.ResponseWriter, request *http.Request) {
 	if num < 1 || num.GetMetric().MetricType().Eq(typ) {
 		var value *string
 		if num > 0 {
-			value = storage.Get(num.String())
+			value = store.Get(num.String())
 		} else {
-			value = storage.Get(name)
+			value = store.Get(name)
 		}
 
 		response.Header().Set("Content-Type", "text/plain; charset=utf-8")

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 15:11 by Victor N. Skurikhin.
+ * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
  * update_handler_test.go
  * $Id$
  */
@@ -82,7 +82,7 @@ func TestUpdateHandler(t *testing.T) {
 }
 
 func TestUpdateHandlerNegative(t *testing.T) {
-	oldStorage := storage
+	oldStorage := store
 	type want struct {
 		code        int
 		response    string
@@ -118,7 +118,7 @@ func TestUpdateHandlerNegative(t *testing.T) {
 
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
-			storage = nil
+			store = nil
 			UpdateHandler(w, r)
 
 			res := w.Result()
@@ -132,5 +132,5 @@ func TestUpdateHandlerNegative(t *testing.T) {
 			assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))
 		})
 	}
-	storage = oldStorage
+	store = oldStorage
 }
