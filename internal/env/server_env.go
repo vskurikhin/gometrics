@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 14:18 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 11:09 by Victor N. Skurikhin.
  * server_env.go
  * $Id$
  */
@@ -13,6 +13,7 @@ type serverEnv struct {
 	storeInterval   time.Duration
 	fileStoragePath string
 	restore         bool
+	dataBaseDSN     string
 }
 
 func (sf *serverEnv) ServerAddress() string {
@@ -29,4 +30,8 @@ func (sf *serverEnv) FileStoragePath() string {
 
 func (sf *serverEnv) Restore() bool {
 	return sf.restore
+}
+
+func (sf *serverEnv) DataBaseDSN() string {
+	return sf.dataBaseDSN
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 20:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 11:11 by Victor N. Skurikhin.
  * init.go
  * $Id$
  */
@@ -103,5 +103,11 @@ func InitServer() {
 		if err == nil {
 			Server.restore = restore
 		}
+	}
+
+	if cfg.DataBaseDSN == "" {
+		Server.dataBaseDSN = *sFlags.dataBaseDSN
+	} else {
+		Server.dataBaseDSN = cfg.DataBaseDSN
 	}
 }
