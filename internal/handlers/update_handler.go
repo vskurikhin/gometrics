@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 19:14 by Victor N. Skurikhin.
  * update_handler.go
  * $Id$
  */
@@ -8,15 +8,16 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/parser"
+	"github.com/vskurikhin/gometrics/internal/storage/postgres"
+	"github.com/vskurikhin/gometrics/internal/types"
 	"net/http"
 	"os"
 )
 
 func UpdateHandler(response http.ResponseWriter, request *http.Request) {
 
-	logger.Log.Debug("got incoming HTTP request with Text")
+	store = postgres.Instance()
 
 	defer func() {
 		if p := recover(); p != nil {
@@ -33,6 +34,11 @@ func UpdateHandler(response http.ResponseWriter, request *http.Request) {
 	}
 
 	name := parsed.String()
-	store.Put(name, parsed.CalcValue(store.Get(name)))
+	switch parsed.Type() {
+	case types.COUNTER:
+		store.PutCounter(name, parsed.CalcValue(store.Get(name)))
+	case types.GAUGE:
+		store.PutGauge(name, parsed.CalcValue(store.Get(name)))
+	}
 	response.WriteHeader(http.StatusOK)
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 20:37 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 18:57 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -40,11 +40,27 @@ func (m *MemStorage) Get(name string) *string {
 	return m.metrics[name]
 }
 
+func (m *MemStorage) GetCounter(name string) *string {
+	return m.Get(name)
+}
+
+func (m *MemStorage) GetGauge(name string) *string {
+	return m.Get(name)
+}
+
 func (m *MemStorage) Put(name string, value *string) {
 
 	m.Lock()
 	defer m.Unlock()
 	m.metrics[name] = value
+}
+
+func (m *MemStorage) PutCounter(name string, value *string) {
+	m.Put(name, value)
+}
+
+func (m *MemStorage) PutGauge(name string, value *string) {
+	m.Put(name, value)
 }
 
 func (m *MemStorage) ReadFromFile(fileName string) {

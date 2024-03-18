@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 19:42 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 18:23 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -12,12 +12,12 @@ import (
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
+	"github.com/vskurikhin/gometrics/internal/storage/postgres"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
@@ -30,6 +30,7 @@ func plainValueJSONHandler(response http.ResponseWriter, request *http.Request) 
 
 func valueJSONHandler(response http.ResponseWriter, request *http.Request) (status int) {
 
+	store = postgres.Instance()
 	response.Header().Set("Content-Type", "application/json")
 
 	defer func() {
@@ -62,7 +63,15 @@ func valueJSON(response http.ResponseWriter, request *http.Request) {
 func valueMetric(metric *dto.Metrics) {
 
 	var err error
-	value := store.Get(strings.ToLower(metric.ID))
+
+	num := types.Lookup(metric.ID)
+	var name string
+	if num > 0 {
+		name = num.String()
+	} else {
+		name = metric.ID
+	}
+	value := store.Get(name)
 
 	switch {
 	case types.GAUGE.Eq(metric.MType):
