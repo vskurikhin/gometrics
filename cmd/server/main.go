@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 12:37 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 19:19 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -17,6 +17,7 @@ import (
 	"github.com/vskurikhin/gometrics/internal/handlers"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
+	"github.com/vskurikhin/gometrics/internal/storage/postgres"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -27,6 +28,7 @@ func main() {
 	logger.Log.Debug("Server ", zap.String("env", fmt.Sprintf("%+v", env.Server)))
 	server.DBConnect()
 	server.Read()
+	postgres.CreateSchema()
 
 	r := chi.NewRouter()
 	r.Use(compress.Compress)
@@ -40,6 +42,8 @@ func main() {
 	r.Post(names.ValueURL, handlers.ValueJSONHandler)
 
 	go server.Save()
+	//
+	//go server.DBUpdate()
 	go server.DBPing()
 	err := http.ListenAndServe(env.Server.ServerAddress(), r)
 	if err != nil {

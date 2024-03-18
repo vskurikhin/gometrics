@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 15:55 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 19:14 by Victor N. Skurikhin.
  * parser.go
  * $Id$
  */
@@ -77,6 +77,10 @@ func errorParser(r *http.Request, status int) (*parser, error) {
 
 func (p *parser) String() string {
 	return p.name
+}
+
+func (p *parser) Type() types.Types {
+	return p.type_
 }
 
 func (p *parser) Value() interface{} {

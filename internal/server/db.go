@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 12:20 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 19:27 by Victor N. Skurikhin.
  * db.go
  * $Id$
  */
@@ -34,9 +34,15 @@ type PgxPoolHealth struct {
 	status bool
 }
 
+const tryLockCheckStatus = 1000
+
 var dbHealth = new(PgxPoolHealth)
 
 func DBHealthInstance() DBHealth {
+	return dbHealth
+}
+
+func PgxPoolInstance() PgxPool {
 	return dbHealth
 }
 
@@ -57,7 +63,7 @@ func DBConnect() *pgxpool.Pool {
 		return nil
 	}
 
-	pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	pool, err := pgxpool.NewWithConfig(context.TODO(), config)
 	if err != nil {
 		panic(err)
 	}
@@ -73,19 +79,14 @@ func DBConnect() *pgxpool.Pool {
 }
 
 func (p *PgxPoolHealth) GetStatus() bool {
-
 	p.RLock()
 	defer p.RUnlock()
-
 	return dbHealth.status
 }
 
 func (p *PgxPoolHealth) checkStatus() error {
 
-	for i := 0; i < 1000 && !p.TryLock(); i++ {
-		time.Sleep(500 * time.Nanosecond)
-
-	}
+	p.Lock()
 	defer p.Unlock()
 
 	if p.pool == nil {
@@ -93,7 +94,18 @@ func (p *PgxPoolHealth) checkStatus() error {
 		return errors.New("poll is nil")
 	}
 
-	conn, err := p.pool.Acquire(context.TODO())
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer func() {
+		cancel()
+		ctx.Done()
+	}()
+
+	conn, err := p.pool.Acquire(ctx)
+	defer func() {
+		if conn != nil {
+			conn.Release()
+		}
+	}()
 
 	if conn == nil || err != nil {
 		p.status = false
@@ -105,13 +117,6 @@ func (p *PgxPoolHealth) checkStatus() error {
 }
 
 func (p *PgxPoolHealth) GetPool() *pgxpool.Pool {
-
-	p.RLock()
-	defer p.RUnlock()
-
-	if !p.status {
-		return nil
-	}
 	return dbHealth.pool
 }
 
@@ -122,7 +127,7 @@ func DBPing() {
 }
 
 func dbPing() {
-	time.Sleep(time.Second)
+	time.Sleep(2 * time.Second)
 	err := dbHealth.checkStatus()
 	if err != nil {
 		logger.Log.Debug("db health checkStatus ", zap.String("error", fmt.Sprintf("%v", err)))

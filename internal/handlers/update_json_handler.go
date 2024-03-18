@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 20:29 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 19:14 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -12,12 +12,12 @@ import (
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
+	"github.com/vskurikhin/gometrics/internal/storage/postgres"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 func UpdateJSONHandler(response http.ResponseWriter, request *http.Request) {
@@ -30,6 +30,7 @@ func plainUpdateJSONHandler(response http.ResponseWriter, request *http.Request)
 
 func updateJSONHandler(response http.ResponseWriter, request *http.Request) (status int) {
 
+	store = postgres.Instance()
 	response.Header().Set("Content-Type", "application/json")
 
 	defer func() {
@@ -62,17 +63,24 @@ func updateJSON(response http.ResponseWriter, request *http.Request) {
 
 func updateMetric(metric *dto.Metrics) {
 
-	name := strings.ToLower(metric.ID)
+	num := types.Lookup(metric.ID)
+	var name string
+	if num > 0 {
+		name = num.String()
+	} else {
+		name = metric.ID
+	}
+
 	value := store.Get(name)
 
 	switch {
 	case types.GAUGE.Eq(metric.MType):
 		value := fmt.Sprintf("%.12f", *metric.Value)
-		store.Put(name, &value)
+		store.PutGauge(name, &value)
 	case types.COUNTER.Eq(metric.MType):
 		*metric.Delta = calcMetricDelta(metric, value)
 		value := fmt.Sprintf("%d", *metric.Delta)
-		store.Put(name, &value)
+		store.PutCounter(name, &value)
 	}
 }
 

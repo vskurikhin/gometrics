@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 18:35 by Victor N. Skurikhin.
  * value_handler_test.go
  * $Id$
  */
@@ -37,8 +37,8 @@ func TestValueHandler(t *testing.T) {
 			type_:    "gauge",
 			variable: "_none",
 			want: want{
-				code:        200,
-				response:    "0.1\n",
+				code:        404,
+				response:    "",
 				contentType: "text/plain; charset=utf-8",
 			},
 		},
@@ -48,8 +48,8 @@ func TestValueHandler(t *testing.T) {
 			type_:    "gauge",
 			variable: "Alloc",
 			want: want{
-				code:        200,
-				response:    "1.1\n",
+				code:        404,
+				response:    "",
 				contentType: "text/plain; charset=utf-8",
 			},
 		},

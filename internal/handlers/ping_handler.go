@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 12:28 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 15:50 by Victor N. Skurikhin.
  * ping_handler.go
  * $Id$
  */
@@ -14,6 +14,8 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 )
+
+var dbHealthInstance = server.DBHealthInstance()
 
 func PingHandler(response http.ResponseWriter, request *http.Request) {
 	compress.ZHandleWrapper(response, request, plainPingHandler)
@@ -34,7 +36,6 @@ func ping(response http.ResponseWriter) (status int) {
 			status = http.StatusNotFound
 		}
 	}()
-	dbHealthInstance := server.DBHealthInstance()
 
 	if dbHealthInstance.GetStatus() {
 		_, _ = response.Write([]byte("Ok"))

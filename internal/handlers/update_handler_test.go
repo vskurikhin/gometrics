@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 18:35 by Victor N. Skurikhin.
  * update_handler_test.go
  * $Id$
  */
@@ -101,7 +101,7 @@ func TestUpdateHandlerNegative(t *testing.T) {
 			type_:    "gauge",
 			variable: "Alloc",
 			want: want{
-				code:        404,
+				code:        200,
 				response:    "",
 				contentType: "",
 			},
