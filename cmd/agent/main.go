@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 10:13 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -21,7 +21,8 @@ var enabled = []t.Name{t.Alloc, t.BuckHashSys, t.Frees, t.GCCPUFraction, t.GCSys
 func main() {
 
 	env.InitAgent()
+	agent.Storage()
 
 	go agent.Poll(enabled)
-	agent.Report(enabled)
+	agent.Reports(enabled)
 }

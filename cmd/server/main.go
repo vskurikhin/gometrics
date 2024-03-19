@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 20:31 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 12:12 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -7,38 +7,48 @@
 package main
 
 import (
-	"fmt"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/handlers"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
-	"go.uber.org/zap"
 	"net/http"
 )
 
 func main() {
 
 	env.InitServer()
-	logger.Log.Debug("Server ", zap.String("env", fmt.Sprintf("%+v", env.Server)))
+	server.DBInit()
+	server.Storage()
 	server.Read()
 
-	r := chi.NewRouter()
-	r.Use(compress.Compress)
-	r.Use(logger.Logging)
-	r.Use(middleware.Recoverer)
-	r.Get("/", handlers.RootHandler)
-	r.Post(names.UpdateChi, handlers.UpdateHandler)
-	r.Post(names.UpdateURL, handlers.UpdateJSONHandler)
-	r.Get(names.ValueChi, handlers.ValueHandler)
-	r.Post(names.ValueURL, handlers.ValueJSONHandler)
+	router := initRouter()
 
 	go server.Save()
-	err := http.ListenAndServe(env.Server.ServerAddress(), r)
+	err := http.ListenAndServe(env.Server.ServerAddress(), router)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func initRouter() *chi.Mux {
+
+	router := chi.NewRouter()
+
+	router.Use(compress.Compress)
+	router.Use(logger.Logging)
+	router.Use(middleware.Recoverer)
+	router.Get("/", handlers.RootHandler)
+	router.Get(names.Ping, handlers.PingHandler)
+	router.Post(names.UpdateChi, handlers.UpdateHandler)
+	router.Post(names.UpdateURL, handlers.UpdateJSONHandler)
+	router.Post(names.UpdatesURL, handlers.UpdatesJSONHandler)
+	router.Get(names.ValueChi, handlers.ValueHandler)
+	router.Post(names.ValueURL, handlers.ValueJSONHandler)
+
+	return router
 }

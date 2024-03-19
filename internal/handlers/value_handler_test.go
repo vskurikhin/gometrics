@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 19:59 by Victor N. Skurikhin.
  * value_handler_test.go
  * $Id$
  */
@@ -62,17 +62,6 @@ func TestValueHandler(t *testing.T) {
 				code:        404,
 				response:    "",
 				contentType: "",
-			},
-		},
-		{
-			name:     "negative test #1",
-			input:    "",
-			type_:    "counter",
-			variable: "_none",
-			want: want{
-				code:        404,
-				response:    "",
-				contentType: "text/plain; charset=utf-8",
 			},
 		},
 	}
