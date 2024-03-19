@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-01 21:40 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 11:56 by Victor N. Skurikhin.
  * root_handler.go
  * $Id$
  */
@@ -29,7 +29,7 @@ func root(response http.ResponseWriter) (status int) {
 	defer func() {
 		if p := recover(); p != nil {
 
-			logger.Log.Debug("func UpdateJSONHandler", zap.String("error", fmt.Sprintf("%v", p)))
+			logger.Log.Debug("func RootHandler", zap.String("error", fmt.Sprintf("%v", p)))
 			status = http.StatusNotFound
 		}
 	}()
