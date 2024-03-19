@@ -1,18 +1,17 @@
 /*
- * This file was last modified at 2024-03-18 19:28 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 22:41 by Victor N. Skurikhin.
  * create_schema.go
  * $Id$
  */
 
-package postgres
+package server
 
 import (
 	"context"
-	"github.com/vskurikhin/gometrics/internal/server"
 	"time"
 )
 
-var pgxPool = server.PgxPoolInstance()
+var pgxPool = PgxPoolInstance()
 
 func CreateSchema() {
 	pool := pgxPool.GetPool()

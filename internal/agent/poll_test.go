@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 23:08 by Victor N. Skurikhin.
  * poll_test.go
  * $Id$
  */
@@ -8,7 +8,6 @@ package agent
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/vskurikhin/gometrics/internal/storage/memory"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"runtime"
 	"testing"
@@ -17,7 +16,7 @@ import (
 func TestPoll(t *testing.T) {
 
 	memStats := new(runtime.MemStats)
-	memStorage := memory.Instance()
+	memStorage := Storage()
 
 	var tests = []struct {
 		name  string

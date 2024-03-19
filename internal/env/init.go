@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 11:11 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 22:29 by Victor N. Skurikhin.
  * init.go
  * $Id$
  */
@@ -9,6 +9,8 @@ package env
 import (
 	"fmt"
 	"github.com/caarlos0/env"
+	"github.com/vskurikhin/gometrics/internal/logger"
+	"go.uber.org/zap"
 	"log"
 	"strconv"
 	"time"
@@ -106,8 +108,9 @@ func InitServer() {
 	}
 
 	if cfg.DataBaseDSN == "" {
-		Server.dataBaseDSN = *sFlags.dataBaseDSN
+		Server.dataBaseDSN = sFlags.dataBaseDSN
 	} else {
-		Server.dataBaseDSN = cfg.DataBaseDSN
+		Server.dataBaseDSN = &cfg.DataBaseDSN
 	}
+	logger.Log.Debug("Server ", zap.String("env", fmt.Sprintf("%+v", Server)))
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 18:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -8,9 +8,10 @@ package memory
 
 import (
 	"encoding/json"
-	"github.com/vskurikhin/gometrics/internal/env"
+	"fmt"
+	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/storage"
+	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 	"io"
 	"os"
@@ -19,48 +20,75 @@ import (
 
 type MemStorage struct {
 	sync.RWMutex
-	metrics map[string]*string
+	Metrics       map[string]*string
+	StoreInterval int
 }
 
-var mem = new(MemStorage)
-
-func init() {
-	mem.metrics = make(map[string]*string)
-}
-
-func Instance() storage.Storage {
-	return mem
-}
-
+// Deprecated: Get is deprecated.
 func (m *MemStorage) Get(name string) *string {
+	return m.get(name)
+}
+
+func (m *MemStorage) GetCounter(name string) *string {
+	return m.get(name)
+}
+
+func (m *MemStorage) GetGauge(name string) *string {
+	return m.get(name)
+}
+
+func (m *MemStorage) get(name string) *string {
 
 	m.RLock()
 	defer m.RUnlock()
 
-	return m.metrics[name]
+	return m.Metrics[name]
 }
 
-func (m *MemStorage) GetCounter(name string) *string {
-	return m.Get(name)
-}
-
-func (m *MemStorage) GetGauge(name string) *string {
-	return m.Get(name)
-}
-
+// Deprecated: Put is deprecated.
 func (m *MemStorage) Put(name string, value *string) {
-
-	m.Lock()
-	defer m.Unlock()
-	m.metrics[name] = value
+	m.put(name, value)
 }
 
 func (m *MemStorage) PutCounter(name string, value *string) {
-	m.Put(name, value)
+	m.put(name, value)
 }
 
 func (m *MemStorage) PutGauge(name string, value *string) {
-	m.Put(name, value)
+	m.put(name, value)
+}
+
+func (m *MemStorage) put(name string, value *string) {
+
+	m.Lock()
+	defer m.Unlock()
+	m.Metrics[name] = value
+}
+
+func (m *MemStorage) PutSlice(metrics dto.Metrics) {
+
+	for _, metric := range metrics {
+
+		num := types.Lookup(metric.ID)
+		var name string
+
+		if num > 0 {
+			name = num.String()
+		} else {
+			name = metric.ID
+		}
+		value := m.Get(name)
+
+		switch {
+		case types.GAUGE.Eq(metric.MType):
+			value := fmt.Sprintf("%.12f", *metric.Value)
+			m.PutGauge(name, &value)
+		case types.COUNTER.Eq(metric.MType):
+			*metric.Delta = metric.CalcDelta(value)
+			value := fmt.Sprintf("%d", *metric.Delta)
+			m.PutCounter(name, &value)
+		}
+	}
 }
 
 func (m *MemStorage) ReadFromFile(fileName string) {
@@ -73,7 +101,7 @@ func (m *MemStorage) ReadFromFile(fileName string) {
 		panic(err)
 	}
 	zapFields.AppendInt("read bytes", n)
-	zapFields.Append("m.metrics", m.metrics)
+	zapFields.Append("m.Metrics", m.Metrics)
 	logger.Log.Debug("in ReadFromFile", zapFields.Slice()...)
 }
 
@@ -98,7 +126,7 @@ func (m *MemStorage) readFromFile(zf util.ZapFields, fileName string) (int, erro
 		logger.Log.Error("in ReadFromFile", zf.Slice()...)
 		return 0, nil
 	}
-	err = json.Unmarshal(buf, &m.metrics)
+	err = json.Unmarshal(buf, &m.Metrics)
 
 	if err != nil {
 		zf.Append("error", err)
@@ -117,7 +145,7 @@ func (m *MemStorage) SaveToFile(fileName string) {
 
 	jsonMetrics := string(out)
 	zapFields.AppendInt("write bytes", n)
-	zapFields.AppendString("m.metrics", &jsonMetrics)
+	zapFields.AppendString("m.Metrics", &jsonMetrics)
 	logger.Log.Debug("in SaveToFile", zapFields.Slice()...)
 }
 
@@ -125,7 +153,7 @@ func (m *MemStorage) saveToFile(zf util.ZapFields, fileName string) ([]byte, int
 
 	m.Lock()
 	defer m.Unlock()
-	out, err := json.Marshal(m.metrics)
+	out, err := json.Marshal(m.Metrics)
 
 	if err != nil {
 		zf.Append("error", err)
@@ -133,7 +161,7 @@ func (m *MemStorage) saveToFile(zf util.ZapFields, fileName string) ([]byte, int
 		return nil, 0
 	}
 	var flag int
-	if env.Server.StoreInterval() == 0 {
+	if m.StoreInterval == 0 {
 		flag = os.O_CREATE | os.O_RDWR | os.O_TRUNC | os.O_SYNC
 	} else {
 		flag = os.O_CREATE | os.O_RDWR | os.O_TRUNC

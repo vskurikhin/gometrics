@@ -1,10 +1,12 @@
 /*
- * This file was last modified at 2024-03-18 18:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 10:29 by Victor N. Skurikhin.
  * storage.go
  * $Id$
  */
 
 package storage
+
+import "github.com/vskurikhin/gometrics/internal/dto"
 
 type Storage interface {
 	Get(name string) *string
@@ -18,6 +20,8 @@ type Storage interface {
 	PutCounter(name string, value *string)
 
 	PutGauge(name string, value *string)
+
+	PutSlice(metrics dto.Metrics)
 
 	ReadFromFile(fileName string)
 

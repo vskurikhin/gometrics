@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 19:14 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -12,15 +12,15 @@ import (
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/storage/postgres"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 	"go.uber.org/zap"
 	"net/http"
-	"strconv"
 )
 
 func UpdateJSONHandler(response http.ResponseWriter, request *http.Request) {
+	store = server.Storage()
 	compress.ZHandleWrapper(response, request, plainUpdateJSONHandler)
 }
 
@@ -30,7 +30,6 @@ func plainUpdateJSONHandler(response http.ResponseWriter, request *http.Request)
 
 func updateJSONHandler(response http.ResponseWriter, request *http.Request) (status int) {
 
-	store = postgres.Instance()
 	response.Header().Set("Content-Type", "application/json")
 
 	defer func() {
@@ -46,7 +45,7 @@ func updateJSONHandler(response http.ResponseWriter, request *http.Request) (sta
 
 func updateJSON(response http.ResponseWriter, request *http.Request) {
 
-	metric := dto.Metrics{}
+	metric := dto.Metric{}
 
 	if err := easyjson.UnmarshalFromReader(request.Body, &metric); err != nil {
 		panic(err)
@@ -61,42 +60,24 @@ func updateJSON(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func updateMetric(metric *dto.Metrics) {
+func updateMetric(metric *dto.Metric) {
 
 	num := types.Lookup(metric.ID)
 	var name string
+
 	if num > 0 {
 		name = num.String()
 	} else {
 		name = metric.ID
 	}
-
-	value := store.Get(name)
-
 	switch {
 	case types.GAUGE.Eq(metric.MType):
 		value := fmt.Sprintf("%.12f", *metric.Value)
 		store.PutGauge(name, &value)
 	case types.COUNTER.Eq(metric.MType):
-		*metric.Delta = calcMetricDelta(metric, value)
+		pv := store.GetCounter(name)
+		*metric.Delta = metric.CalcDelta(pv)
 		value := fmt.Sprintf("%d", *metric.Delta)
 		store.PutCounter(name, &value)
 	}
-}
-
-func calcMetricDelta(metric *dto.Metrics, value *string) int64 {
-
-	var err error
-	var i64 int64
-
-	if value != nil {
-		i64, err = strconv.ParseInt(*value, 10, 64)
-	}
-	if err != nil {
-		panic(err)
-	}
-	if metric.Delta != nil {
-		i64 += *metric.Delta
-	}
-	return i64
 }

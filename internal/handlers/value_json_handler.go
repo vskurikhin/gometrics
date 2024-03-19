@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 18:23 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -12,7 +12,7 @@ import (
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/storage/postgres"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 	"go.uber.org/zap"
@@ -21,6 +21,7 @@ import (
 )
 
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
+	store = server.Storage()
 	compress.ZHandleWrapper(response, request, plainValueJSONHandler)
 }
 
@@ -30,7 +31,6 @@ func plainValueJSONHandler(response http.ResponseWriter, request *http.Request) 
 
 func valueJSONHandler(response http.ResponseWriter, request *http.Request) (status int) {
 
-	store = postgres.Instance()
 	response.Header().Set("Content-Type", "application/json")
 
 	defer func() {
@@ -46,7 +46,7 @@ func valueJSONHandler(response http.ResponseWriter, request *http.Request) (stat
 
 func valueJSON(response http.ResponseWriter, request *http.Request) {
 
-	metric := dto.Metrics{}
+	metric := dto.Metric{}
 
 	if err := easyjson.UnmarshalFromReader(request.Body, &metric); err != nil {
 		panic(err)
@@ -60,26 +60,28 @@ func valueJSON(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func valueMetric(metric *dto.Metrics) {
+func valueMetric(metric *dto.Metric) {
 
 	var err error
 
 	num := types.Lookup(metric.ID)
 	var name string
+
 	if num > 0 {
 		name = num.String()
 	} else {
 		name = metric.ID
 	}
-	value := store.Get(name)
 
 	switch {
 	case types.GAUGE.Eq(metric.MType):
+		value := store.GetGauge(name)
 		metric.Value = new(float64)
 		if value != nil {
 			*metric.Value, err = strconv.ParseFloat(*value, 64)
 		}
 	case types.COUNTER.Eq(metric.MType):
+		value := store.GetCounter(name)
 		metric.Delta = new(int64)
 		if value != nil {
 			*metric.Delta, err = strconv.ParseInt(*value, 10, 64)

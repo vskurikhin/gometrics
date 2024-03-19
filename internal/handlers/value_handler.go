@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 19:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 22:49 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -9,7 +9,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/vskurikhin/gometrics/internal/storage/postgres"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"io"
 	"net/http"
@@ -18,7 +18,7 @@ import (
 
 func ValueHandler(response http.ResponseWriter, request *http.Request) {
 
-	store = postgres.Instance()
+	store = server.Storage()
 	typ := chi.URLParam(request, "type")
 	name := chi.URLParam(request, "name")
 	num := types.Lookup(name)

@@ -104,11 +104,11 @@ test12:
 	@echo "  > Test Iteration 12 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration12$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 
-test11:
+test11: test10
 	@echo "  > Test Iteration 11 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration11$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 
-test10:
+test10: test9
 	@echo "  > Test Iteration 10 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration10$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 11:54 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 23:39 by Victor N. Skurikhin.
  * api_name.go
  * $Id$
  */
@@ -16,6 +16,8 @@ const (
 	ValueChi        = ValueURL + "{type}/{name}"
 	Update          = "/update"
 	UpdateURL       = Update + "/"
+	Updates         = "/updates"
+	UpdatesURL      = Updates + "/"
 	UpdateChi       = UpdateURL + "{type}/{name}/{value:[a-zA-Z0-9-+.]+}"
 	UpdateURLClient = Host + Update
 )

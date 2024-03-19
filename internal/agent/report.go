@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 13:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 10:13 by Victor N. Skurikhin.
  * report.go
  * $Id$
  */
@@ -9,21 +9,18 @@ package agent
 import (
 	"bytes"
 	"compress/gzip"
-	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/types"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 )
 
+// Deprecated: Report is deprecated.
 func Report(enabled []types.Name) {
 
 	client := http.Client{}
@@ -32,6 +29,7 @@ func Report(enabled []types.Name) {
 	}
 }
 
+// Deprecated: report is deprecated.
 func report(enabled []types.Name, client *http.Client) {
 
 	time.Sleep(env.Agent.ReportInterval() * time.Second)
@@ -41,11 +39,20 @@ func report(enabled []types.Name, client *http.Client) {
 	}
 }
 
-//goland:noinspection GoUnhandledErrorResult
+// Deprecated: post is deprecated.
 func post(n types.Name, client *http.Client) {
 
 	name := n.GetMetric().String()
-	value := store.Get(name)
+	var value *string
+
+	switch n.GetMetric().MetricType() {
+	case types.COUNTER:
+		value = store.GetCounter(name)
+	case types.GAUGE:
+		value = store.GetGauge(name)
+	default:
+		value = store.Get(name)
+	}
 
 	if value != nil {
 
@@ -54,7 +61,7 @@ func post(n types.Name, client *http.Client) {
 			MetricType().
 			URLPath()
 		path := *env.Agent.URLHost() + names.UpdateURL
-		metric := dto.Metrics{ID: name, MType: mtyp}
+		metric := dto.Metric{ID: name, MType: mtyp}
 
 		switch n.GetMetric().MetricType() {
 		case types.COUNTER:
@@ -92,33 +99,5 @@ func post(n types.Name, client *http.Client) {
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("Content-Encoding", "gzip")
 		postDo(client, request)
-	}
-}
-
-func postDo(client *http.Client, request *http.Request) {
-
-	defer func() {
-		if p := recover(); p != nil {
-			switch p.(type) {
-			case *url.Error:
-			default:
-				logger.Log.Debug(
-					"func postDo",
-					zap.String("error", fmt.Sprintf("%v", p)),
-				)
-			}
-		}
-	}()
-	response, err := client.Do(request)
-
-	defer func() {
-		if response != nil {
-			//goland:noinspection GoUnhandledErrorResult
-			response.Body.Close()
-		}
-	}()
-
-	if err != nil {
-		panic(err)
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 19:27 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 22:49 by Victor N. Skurikhin.
  * db.go
  * $Id$
  */
@@ -34,8 +34,6 @@ type PgxPoolHealth struct {
 	status bool
 }
 
-const tryLockCheckStatus = 1000
-
 var dbHealth = new(PgxPoolHealth)
 
 func DBHealthInstance() DBHealth {
@@ -48,7 +46,7 @@ func PgxPoolInstance() PgxPool {
 
 func DBConnect() *pgxpool.Pool {
 
-	config, err := pgxpool.ParseConfig(env.Server.DataBaseDSN())
+	config, err := pgxpool.ParseConfig(*env.Server.DataBaseDSN())
 	if err != nil {
 		panic(err)
 	}
