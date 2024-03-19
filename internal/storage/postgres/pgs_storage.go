@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 10:31 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 12:57 by Victor N. Skurikhin.
  * pgs_storage.go
  * $Id$
  */
@@ -27,6 +27,7 @@ type PgsStorage struct {
 }
 
 const (
+	sqlSelectGauge   = "SELECT gauge FROM metric WHERE name = $1 AND type = 'gauge'"
 	sqlInsertCounter = `INSERT INTO metric (name, type, counter)
 				VALUES ($1, 'counter', $2)
 				ON CONFLICT(name) 
@@ -61,6 +62,14 @@ func (p *PgsStorage) GetCounter(name string) *string {
 	}
 	row, err := p.getSQL("SELECT counter FROM metric WHERE name = $1 AND type = 'counter'", name)
 
+	for i := 1; err != nil && i < 6; i += 2 {
+		time.Sleep(time.Duration(i) * time.Second)
+		logger.Log.Debug("retry select counter",
+			zap.String("error", fmt.Sprintf("%v", err)),
+			zap.String("time", fmt.Sprintf("%v", time.Now())),
+		)
+		row, err = p.getSQL(sqlSelectGauge, name)
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -87,7 +96,16 @@ func (p *PgsStorage) GetGauge(name string) *string {
 	if value != nil {
 		return value
 	}
-	row, err := p.getSQL("SELECT gauge FROM metric WHERE name = $1 AND type = 'gauge'", name)
+	row, err := p.getSQL(sqlSelectGauge, name)
+
+	for i := 1; err != nil && i < 6; i += 2 {
+		time.Sleep(time.Duration(i) * time.Second)
+		logger.Log.Debug("retry select gauge",
+			zap.String("error", fmt.Sprintf("%v", err)),
+			zap.String("time", fmt.Sprintf("%v", time.Now())),
+		)
+		row, err = p.getSQL(sqlSelectGauge, name)
+	}
 
 	if err != nil {
 		panic(err)
@@ -116,13 +134,21 @@ func (p *PgsStorage) getSQL(sql, name string) (pgx.Row, error) {
 			logger.Log.Debug("func getSQL", zap.String("error", fmt.Sprintf("%v", p)))
 		}
 	}()
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 	defer func() {
 		cancel()
 		ctx.Done()
 	}()
 
 	conn, err := p.pool.Acquire(ctx)
+	for i := 1; err != nil && i < 6; i += 2 {
+		time.Sleep(time.Duration(i) * time.Second)
+		logger.Log.Debug("retry pool acquire",
+			zap.String("error", fmt.Sprintf("%v", err)),
+			zap.String("time", fmt.Sprintf("%v", time.Now())),
+		)
+		conn, err = p.pool.Acquire(ctx)
+	}
 	defer func() {
 		if conn != nil {
 			conn.Release()
@@ -207,19 +233,22 @@ func (p *PgsStorage) putSQL(sql, name string, value interface{}) error {
 
 func (p *PgsStorage) PutSlice(metrics dto.Metrics) {
 
-	defer func() {
-		if p := recover(); p != nil {
-			logger.Log.Debug("func PutSlice", zap.String("error", fmt.Sprintf("%v", p)))
-		}
-	}()
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 	defer func() {
 		cancel()
 		ctx.Done()
 	}()
 
 	conn, err := p.pool.Acquire(ctx)
+
+	for i := 1; err != nil && i < 6; i += 2 {
+		time.Sleep(time.Duration(i) * time.Second)
+		logger.Log.Debug("retry pool acquire",
+			zap.String("error", fmt.Sprintf("%v", err)),
+			zap.String("time", fmt.Sprintf("%v", time.Now())),
+		)
+		conn, err = p.pool.Acquire(ctx)
+	}
 	defer func() {
 		if conn != nil {
 			conn.Release()
@@ -228,11 +257,24 @@ func (p *PgsStorage) PutSlice(metrics dto.Metrics) {
 	if conn == nil || err != nil {
 		panic(err)
 	}
+	err = p.putSliceTransaction(ctx, conn, metrics)
 
+	for i := 1; err != nil && i < 6; i += 2 {
+		time.Sleep(time.Duration(i) * time.Second)
+		logger.Log.Debug("retry transaction",
+			zap.String("error", fmt.Sprintf("%v", err)),
+			zap.String("time", fmt.Sprintf("%v", time.Now())),
+		)
+		err = p.putSliceTransaction(ctx, conn, metrics)
+	}
+	p.memory.PutSlice(metrics)
+}
+
+func (p *PgsStorage) putSliceTransaction(ctx context.Context, conn *pgxpool.Conn, metrics dto.Metrics) error {
 	tx, err := conn.Begin(ctx)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 	for _, metric := range metrics {
 
@@ -259,16 +301,13 @@ func (p *PgsStorage) PutSlice(metrics dto.Metrics) {
 			value = &v
 		}
 		_, err = tx.Exec(ctx, sqlCommand, name, value)
-	}
-	if err != nil {
-		panic(err)
+		if err != nil {
+			return err
+		}
 	}
 	err = tx.Commit(ctx)
 
-	if err != nil {
-		panic(err)
-	}
-	p.memory.PutSlice(metrics)
+	return err
 }
 
 func (p *PgsStorage) ReadFromFile(fileName string) {

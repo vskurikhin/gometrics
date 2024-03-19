@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 09:31 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 11:03 by Victor N. Skurikhin.
  * metric.go
  * $Id$
  */
@@ -17,17 +17,21 @@ type Metric struct {
 
 func (m *Metric) CalcDelta(value *string) int64 {
 
-	var err error
 	var i64 int64
 
 	if value != nil {
-		i64, err = strconv.ParseInt(*value, 10, 64)
-	}
-	if err != nil {
-		panic(err)
+		i64 = parseInt(value)
 	}
 	if m.Delta != nil {
 		i64 += *m.Delta
 	}
 	return i64
+}
+
+func parseInt(value *string) int64 {
+	if i64, err := strconv.ParseInt(*value, 10, 64); err != nil {
+		panic(err)
+	} else {
+		return i64
+	}
 }

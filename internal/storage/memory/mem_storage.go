@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 12:57 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -13,9 +13,11 @@ import (
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
+	"go.uber.org/zap"
 	"io"
 	"os"
 	"sync"
+	"time"
 )
 
 type MemStorage struct {
@@ -167,6 +169,14 @@ func (m *MemStorage) saveToFile(zf util.ZapFields, fileName string) ([]byte, int
 		flag = os.O_CREATE | os.O_RDWR | os.O_TRUNC
 	}
 	file, err := os.OpenFile(fileName, flag, 0640)
+	for i := 1; err != nil && i < 6; i += 2 {
+		time.Sleep(time.Duration(i) * time.Second)
+		logger.Log.Debug("retry open file",
+			zap.String("error", fmt.Sprintf("%v", err)),
+			zap.String("time", fmt.Sprintf("%v", time.Now())),
+		)
+		file, err = os.OpenFile(fileName, flag, 0640)
+	}
 
 	if err != nil {
 		zf.Append("error", err)

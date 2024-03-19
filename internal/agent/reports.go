@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 10:13 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 12:04 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -19,7 +19,6 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 )
@@ -49,7 +48,17 @@ func reports(enabled []types.Name, client *http.Client) {
 	if err != nil {
 		panic(err)
 	}
-	postDo(client, request)
+
+	err = postDo(client, request)
+
+	for i := 1; err != nil && i < 6; i += 2 {
+		time.Sleep(time.Duration(i) * time.Second)
+		logger.Log.Debug("retry post",
+			zap.String("error", fmt.Sprintf("%v", err)),
+			zap.String("time", fmt.Sprintf("%v", time.Now())),
+		)
+		err = postDo(client, request)
+	}
 }
 
 func getMetric(n types.Name) *dto.Metric {
@@ -123,20 +132,8 @@ func newRequest(metrics dto.Metrics) (*http.Request, error) {
 	return request, nil
 }
 
-func postDo(client *http.Client, request *http.Request) {
+func postDo(client *http.Client, request *http.Request) error {
 
-	defer func() {
-		if p := recover(); p != nil {
-			switch p.(type) {
-			case *url.Error:
-			default:
-				logger.Log.Debug(
-					"func postDo",
-					zap.String("error", fmt.Sprintf("%v", p)),
-				)
-			}
-		}
-	}()
 	response, err := client.Do(request)
 
 	defer func() {
@@ -145,8 +142,5 @@ func postDo(client *http.Client, request *http.Request) {
 			response.Body.Close()
 		}
 	}()
-
-	if err != nil {
-		panic(err)
-	}
+	return err
 }

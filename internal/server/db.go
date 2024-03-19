@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 22:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-19 12:12 by Victor N. Skurikhin.
  * db.go
  * $Id$
  */
@@ -35,6 +35,14 @@ type PgxPoolHealth struct {
 }
 
 var dbHealth = new(PgxPoolHealth)
+
+func DBInit() {
+	if env.Server.IsDBSetup() {
+		DBConnect()
+		CreateSchema()
+		go DBPing()
+	}
+}
 
 func DBHealthInstance() DBHealth {
 	return dbHealth

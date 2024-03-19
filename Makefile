@@ -100,7 +100,11 @@ go-clean:
 	@echo "  >  Cleaning build cache"
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
 
-test12:
+test13:
+	@echo "  > Test Iteration 13 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration13$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
+
+test12: test11
 	@echo "  > Test Iteration 12 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration12$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 
