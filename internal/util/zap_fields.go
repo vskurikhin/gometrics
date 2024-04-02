@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 19:41 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 23:30 by Victor N. Skurikhin.
  * zap_fields.go
  * $Id$
  */
@@ -59,7 +59,7 @@ func (zf *zapFields) Slice() []zap.Field {
 }
 
 //goland:noinspection GoExportedFuncWithUnexportedType
-func ZapFieldsMetric(metric *dto.Metrics) ZapFields {
+func ZapFieldsMetric(metric *dto.Metric) ZapFields {
 	zapFields := MakeZapFields()
 	zapFields.Append("metric", metric)
 

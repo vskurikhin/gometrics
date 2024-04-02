@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-03-18 22:49 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -9,13 +9,16 @@ package handlers
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func ValueHandler(response http.ResponseWriter, request *http.Request) {
 
+	store = server.Storage()
 	typ := chi.URLParam(request, "type")
 	name := chi.URLParam(request, "name")
 	num := types.Lookup(name)
@@ -23,9 +26,13 @@ func ValueHandler(response http.ResponseWriter, request *http.Request) {
 	if num < 1 || num.GetMetric().MetricType().Eq(typ) {
 		var value *string
 		if num > 0 {
-			value = store.Get(num.String())
-		} else {
-			value = store.Get(name)
+			name = num.String()
+		}
+		switch strings.ToLower(typ) {
+		case "counter":
+			value = store.GetCounter(name)
+		case "gauge":
+			value = store.GetGauge(name)
 		}
 
 		response.Header().Set("Content-Type", "text/plain; charset=utf-8")
