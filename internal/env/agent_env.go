@@ -16,6 +16,7 @@ type agentEnv struct {
 	urlHost        *string
 	reportInterval time.Duration
 	pollInterval   time.Duration
+	key            *string
 }
 
 func (ae *agentEnv) URLHost() *string {
@@ -36,4 +37,8 @@ func (ae *agentEnv) ReportInterval() time.Duration {
 
 func (ae *agentEnv) PollInterval() time.Duration {
 	return ae.pollInterval
+}
+
+func (ae *agentEnv) Key() *string {
+	return ae.key
 }

@@ -52,6 +52,13 @@ func InitAgent() {
 	} else {
 		Agent.pollInterval = time.Duration(cfg.PollInterval)
 	}
+
+	if cfg.Key == "" {
+		Agent.key = aFlags.key
+	} else {
+		Agent.key = &cfg.Key
+	}
+	logger.Log.Debug("Agent ", zap.String("env", fmt.Sprintf("%+v", Agent)))
 }
 
 func parseEnvAddress(cfg config) string {
@@ -111,6 +118,12 @@ func InitServer() {
 		Server.dataBaseDSN = sFlags.dataBaseDSN
 	} else {
 		Server.dataBaseDSN = &cfg.DataBaseDSN
+	}
+
+	if cfg.Key == "" {
+		Server.key = sFlags.key
+	} else {
+		Server.key = &cfg.Key
 	}
 	logger.Log.Debug("Server ", zap.String("env", fmt.Sprintf("%+v", Server)))
 }

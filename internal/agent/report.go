@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 10:13 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-05 09:09 by Victor N. Skurikhin.
  * report.go
  * $Id$
  */
@@ -9,8 +9,10 @@ package agent
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/hmac"
+	"crypto/sha256"
+	"fmt"
 	"github.com/mailru/easyjson"
-	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/types"
@@ -60,7 +62,7 @@ func post(n types.Name, client *http.Client) {
 			GetMetric().
 			MetricType().
 			URLPath()
-		path := *env.Agent.URLHost() + names.UpdateURL
+		path := *env.Agent.URLHost() + env.UpdateURL
 		metric := dto.Metric{ID: name, MType: mtyp}
 
 		switch n.GetMetric().MetricType() {
@@ -98,6 +100,13 @@ func post(n types.Name, client *http.Client) {
 		}
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("Content-Encoding", "gzip")
+		if *env.Agent.Key() != "" {
+
+			h := hmac.New(sha256.New, []byte(*env.Agent.Key()))
+			h.Write(b1.Bytes())
+			dst := h.Sum(nil)
+			request.Header.Add("HashSHA256", fmt.Sprintf("%x", dst))
+		}
 		postDo(client, request)
 	}
 }

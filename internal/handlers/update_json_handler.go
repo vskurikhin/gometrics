@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-05 09:27 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -38,17 +38,20 @@ func updateJSONHandler(response http.ResponseWriter, request *http.Request) (sta
 			status = http.StatusNotFound
 		}
 	}()
-	updateJSON(response, request)
 
+	status, err := updateJSON(response, request)
+	if err != nil {
+		return status
+	}
 	return http.StatusOK
 }
 
-func updateJSON(response http.ResponseWriter, request *http.Request) {
+func updateJSON(response http.ResponseWriter, request *http.Request) (int, error) {
 
 	metric := dto.Metric{}
 
 	if err := easyjson.UnmarshalFromReader(request.Body, &metric); err != nil {
-		panic(err)
+		return http.StatusNotFound, err
 	}
 
 	zapFields := util.ZapFieldsMetric(&metric)
@@ -56,8 +59,9 @@ func updateJSON(response http.ResponseWriter, request *http.Request) {
 	updateMetric(&metric)
 
 	if _, err := easyjson.MarshalToWriter(metric, response); err != nil {
-		panic(err)
+		return http.StatusNotFound, err
 	}
+	return http.StatusOK, nil
 }
 
 func updateMetric(metric *dto.Metric) {

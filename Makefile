@@ -68,11 +68,11 @@ go-compile: go-build-agent go-build-server
 
 go-build-agent:
 	@echo "  >  Building agent binary..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/agent && go build -o $(GOBIN)/agent $(GOFILES)
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./agent && go build -o $(GOBIN)/agent $(GOFILES)
 
 go-build-server:
 	@echo "  >  Building server binary..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/server && go build -o $(GOBIN)/server $(GOFILES)
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./server && go build -o $(GOBIN)/server $(GOFILES)
 
 go-generate:
 	@echo "  >  Generating dependency files..."
@@ -100,7 +100,11 @@ go-clean:
 	@echo "  >  Cleaning build cache"
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
 
-test13:
+test14:
+	@echo "  > Test Iteration 14 ..."
+	cd bin && ./metricstest -test.v -test.run=^TestIteration14$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -key="key" -source-path=../.
+
+test13: test12
 	@echo "  > Test Iteration 13 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration13$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 

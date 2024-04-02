@@ -16,6 +16,7 @@ type serverEnv struct {
 	fileStoragePath string
 	restore         bool
 	dataBaseDSN     *string
+	key             *string
 }
 
 func (sf *serverEnv) ServerAddress() string {
@@ -40,4 +41,8 @@ func (sf *serverEnv) DataBaseDSN() *string {
 
 func (sf *serverEnv) IsDBSetup() bool {
 	return sf.dataBaseDSN != nil && *sf.dataBaseDSN != ""
+}
+
+func (sf *serverEnv) Key() *string {
+	return sf.key
 }

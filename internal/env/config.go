@@ -14,4 +14,5 @@ type config struct {
 	FileStoragePath string   `env:"FILE_STORAGE_PATH"`
 	Restore         string   `env:"RESTORE"`
 	DataBaseDSN     string   `env:"DATABASE_DSN"`
+	Key             string   `env:"KEY"`
 }

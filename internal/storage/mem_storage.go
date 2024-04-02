@@ -1,10 +1,10 @@
 /*
- * This file was last modified at 2024-03-19 12:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-03 09:42 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
 
-package memory
+package storage
 
 import (
 	"encoding/json"

@@ -1,10 +1,10 @@
 /*
- * This file was last modified at 2024-03-19 12:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-03 09:42 by Victor N. Skurikhin.
  * pgs_storage.go
  * $Id$
  */
 
-package postgres
+package storage
 
 import (
 	"context"
@@ -14,7 +14,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/storage"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"go.uber.org/zap"
 	"strconv"
@@ -22,7 +21,7 @@ import (
 )
 
 type PgsStorage struct {
-	memory storage.Storage
+	memory Storage
 	pool   *pgxpool.Pool
 }
 
@@ -40,7 +39,7 @@ const (
 				gauge = $2`
 )
 
-func New(memory storage.Storage, pool *pgxpool.Pool) *PgsStorage {
+func New(memory Storage, pool *pgxpool.Pool) *PgsStorage {
 	return &PgsStorage{
 		memory: memory,
 		pool:   pool,

@@ -1,10 +1,10 @@
 /*
- * This file was last modified at 2024-03-18 23:39 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-03 08:47 by Victor N. Skurikhin.
  * api_name.go
  * $Id$
  */
 
-package names
+package env
 
 const (
 	Port            = 8080
