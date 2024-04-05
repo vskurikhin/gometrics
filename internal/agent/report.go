@@ -9,9 +9,6 @@ package agent
 import (
 	"bytes"
 	"compress/gzip"
-	"crypto/hmac"
-	"crypto/sha256"
-	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
@@ -100,13 +97,6 @@ func post(n types.Name, client *http.Client) {
 		}
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("Content-Encoding", "gzip")
-		if *env.Agent.Key() != "" {
-
-			h := hmac.New(sha256.New, []byte(*env.Agent.Key()))
-			h.Write(b1.Bytes())
-			dst := h.Sum(nil)
-			request.Header.Add("HashSHA256", fmt.Sprintf("%x", dst))
-		}
 		postDo(client, request)
 	}
 }
