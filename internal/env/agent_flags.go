@@ -17,6 +17,7 @@ type agentFlags struct {
 	urlHost        *string
 	reportInterval *time.Duration
 	pollInterval   *time.Duration
+	key            *string
 }
 
 func (af *agentFlags) URLHost() *string {
@@ -45,6 +46,7 @@ func initAgentFlags() {
 
 	report := pflag.IntP("report-interval", "r", 10, "help message for report interval")
 	poll := pflag.IntP("poll-interval", "p", 2, "help message for poll interval")
+	aFlags.key = pflag.StringP("key", "k", "", "help message for key")
 
 	pflag.Parse()
 
@@ -53,4 +55,5 @@ func initAgentFlags() {
 
 	pollInterval := time.Duration(*poll)
 	aFlags.pollInterval = &pollInterval
+
 }

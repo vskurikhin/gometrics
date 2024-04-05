@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 19:59 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-03 08:47 by Victor N. Skurikhin.
  * value_handler_test.go
  * $Id$
  */
@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/vskurikhin/gometrics/api/names"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -69,7 +69,7 @@ func TestValueHandler(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, names.ValueURL+"{type}/{name}", nil)
+			r := httptest.NewRequest(http.MethodGet, env.ValueURL+"{type}/{name}", nil)
 
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("type", test.type_)

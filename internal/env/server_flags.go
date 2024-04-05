@@ -17,6 +17,7 @@ type serverFlags struct {
 	fileStoragePath *string
 	restore         *bool
 	dataBaseDSN     *string
+	key             *string
 }
 
 func (sf *serverFlags) ServerAddress() string {
@@ -46,9 +47,11 @@ func initServerFlags() {
 	sFlags.fileStoragePath = pflag.StringP("file-storage-path", "f", "/tmp/metrics-db.json", "help message for file storage path")
 	sFlags.restore = pflag.BoolP("restore", "r", true, "help message for restore trigger")
 	sFlags.dataBaseDSN = pflag.StringP("database-dsn", "d", "", "help message for file database DSN")
+	sFlags.key = pflag.StringP("key", "k", "", "help message for key")
 
 	pflag.Parse()
 
 	storeInterval := time.Duration(*sInterval)
 	sFlags.storeInterval = &storeInterval
+
 }

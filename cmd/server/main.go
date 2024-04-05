@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 12:12 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-03 08:47 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/vskurikhin/gometrics/api/names"
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/handlers"
@@ -43,12 +42,12 @@ func initRouter() *chi.Mux {
 	router.Use(logger.Logging)
 	router.Use(middleware.Recoverer)
 	router.Get("/", handlers.RootHandler)
-	router.Get(names.Ping, handlers.PingHandler)
-	router.Post(names.UpdateChi, handlers.UpdateHandler)
-	router.Post(names.UpdateURL, handlers.UpdateJSONHandler)
-	router.Post(names.UpdatesURL, handlers.UpdatesJSONHandler)
-	router.Get(names.ValueChi, handlers.ValueHandler)
-	router.Post(names.ValueURL, handlers.ValueJSONHandler)
+	router.Get(env.Ping, handlers.PingHandler)
+	router.Post(env.UpdateChi, handlers.UpdateHandler)
+	router.Post(env.UpdateURL, handlers.UpdateJSONHandler)
+	router.Post(env.UpdatesURL, handlers.UpdatesJSONHandler)
+	router.Get(env.ValueChi, handlers.ValueHandler)
+	router.Post(env.ValueURL, handlers.ValueJSONHandler)
 
 	return router
 }

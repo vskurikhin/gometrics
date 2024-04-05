@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 17:08 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-03 09:02 by Victor N. Skurikhin.
  * init_agent_test.go
  * $Id$
  */
@@ -13,6 +13,7 @@ import (
 )
 
 func TestInitAgentWithEnv(t *testing.T) {
+	emptyStr := ""
 	old := cfg
 	urlHost := "localhost:8080"
 	arrHost := []string{"localhost", "8080"}
@@ -28,6 +29,7 @@ func TestInitAgentWithEnv(t *testing.T) {
 				serverEnv:      serverEnv{serverAddress: &urlHost},
 				reportInterval: time.Duration(10),
 				pollInterval:   time.Duration(2),
+				key:            &emptyStr,
 			},
 		},
 	}
@@ -35,7 +37,6 @@ func TestInitAgentWithEnv(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			cfg = test.input
 			InitAgent()
-			//fmt.Printf("urlHost: %s\n", *Agent.urlHost)
 			assert.Equal(t, test.want, Agent)
 		})
 	}

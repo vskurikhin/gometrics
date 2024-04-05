@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 18:35 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-03 08:47 by Victor N. Skurikhin.
  * update_handler_test.go
  * $Id$
  */
@@ -12,7 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/vskurikhin/gometrics/api/names"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -59,7 +59,7 @@ func TestUpdateHandler(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 
 			w := httptest.NewRecorder()
-			target := fmt.Sprintf("%s%s/%s/%s", names.UpdateURL, test.type_, test.variable, test.input)
+			target := fmt.Sprintf("%s%s/%s/%s", env.UpdateURL, test.type_, test.variable, test.input)
 			r := httptest.NewRequest(http.MethodPost, target, nil)
 
 			rctx := chi.NewRouteContext()
@@ -111,7 +111,7 @@ func TestUpdateHandlerNegative(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 
 			w := httptest.NewRecorder()
-			target := fmt.Sprintf("%s%s/%s/%s", names.UpdateURL, test.type_, test.variable, test.input)
+			target := fmt.Sprintf("%s%s/%s/%s", env.UpdateURL, test.type_, test.variable, test.input)
 			r := httptest.NewRequest(http.MethodPost, target, nil)
 
 			rctx := chi.NewRouteContext()
