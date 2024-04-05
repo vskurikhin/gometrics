@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-05 10:47 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-05 10:14 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -14,6 +14,7 @@ import (
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/logger"
+	"github.com/vskurikhin/gometrics/internal/sign"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"go.uber.org/zap"
 	"io"
@@ -127,6 +128,8 @@ func newRequest(metrics dto.Metrics) (*http.Request, error) {
 	}
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Content-Encoding", "gzip")
+	sign.AddSignatureToRequest(request, b1.Bytes())
+
 	return request, nil
 }
 

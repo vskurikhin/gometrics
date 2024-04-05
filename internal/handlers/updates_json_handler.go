@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-05 08:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-05 10:16 by Victor N. Skurikhin.
  * updates_json_handler.go
  * $Id$
  */
@@ -38,7 +38,12 @@ func updatesJSONHandler(response http.ResponseWriter, request *http.Request) (st
 		}
 	}()
 
-	status, err := updatesJSON(response, request)
+	status, err := checkSignature(request)
+	if err != nil {
+		return status
+	}
+
+	status, err = updatesJSON(response, request)
 	if err != nil {
 		return status
 	}
