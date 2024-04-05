@@ -68,11 +68,11 @@ go-compile: go-build-agent go-build-server
 
 go-build-agent:
 	@echo "  >  Building agent binary..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./agent && go build -o $(GOBIN)/agent $(GOFILES)
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/agent && go build -o $(GOBIN)/agent $(GOFILES)
 
 go-build-server:
 	@echo "  >  Building server binary..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./server && go build -o $(GOBIN)/server $(GOFILES)
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/server && go build -o $(GOBIN)/server $(GOFILES)
 
 go-generate:
 	@echo "  >  Generating dependency files..."
