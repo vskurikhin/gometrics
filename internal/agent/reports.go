@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-05 07:59 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-05 10:47 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -9,8 +9,6 @@ package agent
 import (
 	"bytes"
 	"compress/gzip"
-	"crypto/hmac"
-	"crypto/sha256"
 	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/vskurikhin/gometrics/internal/dto"
@@ -129,13 +127,6 @@ func newRequest(metrics dto.Metrics) (*http.Request, error) {
 	}
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Content-Encoding", "gzip")
-	if *env.Agent.Key() != "" {
-
-		h := hmac.New(sha256.New, []byte(*env.Agent.Key()))
-		h.Write(b1.Bytes())
-		dst := h.Sum(nil)
-		request.Header.Add("HashSHA256", fmt.Sprintf("%x", dst))
-	}
 	return request, nil
 }
 
