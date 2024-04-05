@@ -38,12 +38,7 @@ func updatesJSONHandler(response http.ResponseWriter, request *http.Request) (st
 		}
 	}()
 
-	status, err := checkSignature(request)
-	if err != nil {
-		return status
-	}
-
-	status, err = updatesJSON(response, request)
+	status, err := updatesJSON(response, request)
 	if err != nil {
 		return status
 	}
