@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 15:50 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:56 by Victor N. Skurikhin.
  * ping_handler.go
  * $Id$
  */
@@ -38,12 +38,14 @@ func ping(response http.ResponseWriter) (status int) {
 	}()
 
 	if dbHealthInstance.GetStatus() {
-		_, _ = response.Write([]byte("Ok"))
+		//goland:noinspection GoUnhandledErrorResult
+		response.Write([]byte("Ok"))
 		return http.StatusOK
 	}
 
 	response.WriteHeader(http.StatusInternalServerError)
-	_, _ = response.Write([]byte("DataBase health NOT OK!"))
+	//goland:noinspection GoUnhandledErrorResult
+	response.Write([]byte("DataBase health NOT OK!"))
 
 	return http.StatusInternalServerError
 }

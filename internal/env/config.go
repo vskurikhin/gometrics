@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 11:05 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 16:47 by Victor N. Skurikhin.
  * config.go
  * $Id$
  */
@@ -15,4 +15,5 @@ type config struct {
 	Restore         string   `env:"RESTORE"`
 	DataBaseDSN     string   `env:"DATABASE_DSN"`
 	Key             string   `env:"KEY"`
+	RateLimit       int      `env:"RATE_LIMIT"`
 }

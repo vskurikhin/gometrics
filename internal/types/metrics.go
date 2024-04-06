@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 23:30 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:34 by Victor N. Skurikhin.
  * metrics.go
  * $Id$
  */
@@ -106,6 +106,9 @@ var Metrics = [...]metric{
 	}},
 	{name: "PollCount", metricType: COUNTER},
 	{name: "RandomValue", metricType: GAUGE},
+	{name: "TotalMemory", metricType: GAUGE},
+	{name: "FreeMemory", metricType: GAUGE},
+	{name: "CPUutilization1", metricType: GAUGE},
 }
 
 func init() {

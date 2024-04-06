@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 23:59 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 16:54 by Victor N. Skurikhin.
  * agent_env.go
  * $Id$
  */
@@ -17,6 +17,7 @@ type agentEnv struct {
 	reportInterval time.Duration
 	pollInterval   time.Duration
 	key            *string
+	rateLimit      int
 }
 
 func (ae *agentEnv) URLHost() *string {
@@ -41,4 +42,8 @@ func (ae *agentEnv) PollInterval() time.Duration {
 
 func (ae *agentEnv) Key() *string {
 	return ae.key
+}
+
+func (ae *agentEnv) RateLimit() int {
+	return ae.rateLimit
 }

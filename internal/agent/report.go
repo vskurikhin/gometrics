@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-05 09:09 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:55 by Victor N. Skurikhin.
  * report.go
  * $Id$
  */
@@ -97,6 +97,10 @@ func post(n types.Name, client *http.Client) {
 		}
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("Content-Encoding", "gzip")
-		postDo(client, request)
+		err = postDo(client, request)
+		if err != nil {
+			io.WriteString(&b1, err.Error())
+			return
+		}
 	}
 }
