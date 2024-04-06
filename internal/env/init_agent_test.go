@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-03 09:02 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:45 by Victor N. Skurikhin.
  * init_agent_test.go
  * $Id$
  */
@@ -30,6 +30,7 @@ func TestInitAgentWithEnv(t *testing.T) {
 				reportInterval: time.Duration(10),
 				pollInterval:   time.Duration(2),
 				key:            &emptyStr,
+				rateLimit:      1,
 			},
 		},
 	}

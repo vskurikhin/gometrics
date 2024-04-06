@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:49 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:38 by Victor N. Skurikhin.
  * poll.go
  * $Id$
  */
@@ -8,6 +8,7 @@ package agent
 
 import (
 	"fmt"
+	psmem "github.com/shirou/gopsutil/v3/mem"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"math/rand"
@@ -18,11 +19,13 @@ import (
 
 var count = atomic.Uint64{}
 
-func Poll(enabled []types.Name) {
+func Poll(enabled []types.Name, jobs chan<- int) {
 
+	var number int
 	memStats := new(runtime.MemStats)
 	for {
 		poll(enabled, memStats)
+		jobs <- inc(&number)
 	}
 }
 
@@ -59,6 +62,7 @@ func putCustom(n types.Name) {
 
 	metric := n.GetMetric()
 	name := metric.String()
+	v, _ := psmem.VirtualMemory()
 
 	switch n {
 	case types.PollCount:
@@ -67,5 +71,19 @@ func putCustom(n types.Name) {
 	case types.RandomValue:
 		value := fmt.Sprintf("%d", rand.Int())
 		store.Put(name, &value)
+	case types.TotalMemory:
+		value := fmt.Sprintf("%d", v.Total)
+		store.Put(name, &value)
+	case types.FreeMemory:
+		value := fmt.Sprintf("%d", v.Free)
+		store.Put(name, &value)
+	case types.CPUutilization1:
+		value := fmt.Sprintf("%f", v.UsedPercent)
+		store.Put(name, &value)
 	}
+}
+
+func inc(i *int) int {
+	*i++
+	return *i
 }

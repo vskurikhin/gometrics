@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 00:39 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:34 by Victor N. Skurikhin.
  * metric_name.go
  * $Id$
  */
@@ -44,6 +44,9 @@ const (
 	TotalAlloc
 	PollCount
 	RandomValue
+	TotalMemory
+	FreeMemory
+	CPUutilization1
 )
 
 var lowerCase []*string

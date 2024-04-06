@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 22:29 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:15 by Victor N. Skurikhin.
  * init.go
  * $Id$
  */
@@ -57,6 +57,12 @@ func InitAgent() {
 		Agent.key = aFlags.key
 	} else {
 		Agent.key = &cfg.Key
+	}
+
+	if cfg.RateLimit < 1 && aFlags.RateLimit() != nil {
+		Agent.rateLimit = *aFlags.RateLimit()
+	} else {
+		Agent.rateLimit = cfg.RateLimit
 	}
 	logger.Log.Debug("Agent ", zap.String("env", fmt.Sprintf("%+v", Agent)))
 }

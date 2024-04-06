@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-05 10:14 by Victor N. Skurikhin.
+ * This file was last modified at 2024-04-06 18:23 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -22,14 +22,6 @@ import (
 	"strconv"
 	"time"
 )
-
-func Reports(enabled []types.Name) {
-
-	client := http.Client{}
-	for {
-		reports(enabled, &client)
-	}
-}
 
 func reports(enabled []types.Name, client *http.Client) {
 
