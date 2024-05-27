@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 09:31 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * metric_easyjson.go
  * $Id$
  */
@@ -10,6 +10,7 @@ package dto
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"

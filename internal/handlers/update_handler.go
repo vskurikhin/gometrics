@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * update_handler.go
  * $Id$
  */
@@ -8,11 +8,12 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/vskurikhin/gometrics/internal/parser"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
-	"net/http"
-	"os"
 )
 
 func UpdateHandler(response http.ResponseWriter, request *http.Request) {

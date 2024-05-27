@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 17:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * server_flags_test.go
  * $Id$
  */
@@ -7,8 +7,9 @@
 package env
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestServerFlagsServerAddress(t *testing.T) {

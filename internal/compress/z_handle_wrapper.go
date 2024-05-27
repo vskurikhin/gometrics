@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-02 13:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * z_handle_wrapper.go
  * $Id$
  */
@@ -8,9 +8,10 @@ package compress
 
 import (
 	"compress/gzip"
-	"github.com/vskurikhin/gometrics/internal/logger"
 	"net/http"
 	"strings"
+
+	"github.com/vskurikhin/gometrics/internal/logger"
 )
 
 func ZHandleWrapper(w http.ResponseWriter, r *http.Request, handler func(http.ResponseWriter, *http.Request)) {

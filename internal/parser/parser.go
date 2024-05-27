@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 19:14 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * parser.go
  * $Id$
  */
@@ -9,9 +9,10 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
-	"net/http"
 )
 
 type parser struct {

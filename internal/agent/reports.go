@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-05 10:47 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -10,16 +10,18 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
-	"github.com/mailru/easyjson"
-	"github.com/vskurikhin/gometrics/internal/dto"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/types"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/mailru/easyjson"
+	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/dto"
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/logger"
+	"github.com/vskurikhin/gometrics/internal/types"
 )
 
 func Reports(enabled []types.Name) {

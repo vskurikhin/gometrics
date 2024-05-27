@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-03 08:47 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * update_handler_test.go
  * $Id$
  */
@@ -9,14 +9,16 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/vskurikhin/gometrics/internal/env"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/vskurikhin/gometrics/internal/env"
 )
 
 func TestUpdateHandler(t *testing.T) {

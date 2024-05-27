@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 23:30 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * zap_fields.go
  * $Id$
  */
@@ -8,8 +8,10 @@ package util
 
 import (
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/dto"
+
 	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/dto"
 )
 
 type zapFields []zap.Field
