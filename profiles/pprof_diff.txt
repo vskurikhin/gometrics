@@ -1,0 +1,40 @@
+File: ___go_build_github_com_vskurikhin_gometrics_cmd_server
+Type: inuse_space
+Time: May 28, 2024 at 2:29pm (MSK)
+Showing nodes accounting for -0.17MB, 8.32% of 2.08MB total
+      flat  flat%   sum%        cum   cum%
+    0.88MB 42.46% 42.46%     0.88MB 42.46%  compress/flate.NewWriter (inline)
+   -0.53MB 25.62% 16.84%    -0.53MB 25.62%  net.open
+   -0.50MB 24.18%  7.34%    -0.50MB 24.18%  bufio.NewWriterSize (inline)
+   -0.02MB  0.98%  8.32%    -0.02MB  0.98%  github.com/jackc/pgx/v5/pgtype.(*Map).RegisterDefaultPgType (inline)
+         0     0%  8.32%     0.88MB 42.46%  github.com/go-chi/chi/v5.(*Mux).Group
+         0     0%  8.32%     0.88MB 42.46%  github.com/go-chi/chi/v5/middleware.(*Compressor).SetEncoder
+         0     0%  8.32%     0.88MB 42.46%  github.com/go-chi/chi/v5/middleware.Compress (inline)
+         0     0%  8.32%     0.88MB 42.46%  github.com/go-chi/chi/v5/middleware.NewCompressor
+         0     0%  8.32%     0.88MB 42.46%  github.com/go-chi/chi/v5/middleware.encoderDeflate
+         0     0%  8.32%    -0.55MB 26.60%  github.com/jackc/pgx/v5.ConnectConfig
+         0     0%  8.32%    -0.55MB 26.60%  github.com/jackc/pgx/v5.connect
+         0     0%  8.32%    -0.53MB 25.62%  github.com/jackc/pgx/v5/pgconn.ConnectConfig
+         0     0%  8.32%    -0.53MB 25.62%  github.com/jackc/pgx/v5/pgconn.expandWithIPs
+         0     0%  8.32%    -0.02MB  0.98%  github.com/jackc/pgx/v5/pgtype.NewMap
+         0     0%  8.32%    -0.02MB  0.98%  github.com/jackc/pgx/v5/pgtype.initDefaultMap
+         0     0%  8.32%    -0.54MB 26.02%  github.com/jackc/pgx/v5/pgtype.registerDefaultPgTypeVariants[go.shape.[]github.com/jackc/pgx/v5/pgtype.Range[github.com/jackc/pgx/v5/pgtype.Timestamp]]
+         0     0%  8.32%     0.52MB 25.04%  github.com/jackc/pgx/v5/pgtype.registerDefaultPgTypeVariants[go.shape.struct { Lower github.com/jackc/pgx/v5/pgtype.Date; Upper github.com/jackc/pgx/v5/pgtype.Date; LowerType github.com/jackc/pgx/v5/pgtype.BoundType; UpperType github.com/jackc/pgx/v5/pgtype.BoundType; Valid bool }]
+         0     0%  8.32%    -0.55MB 26.60%  github.com/jackc/pgx/v5/pgxpool.NewWithConfig.func1
+         0     0%  8.32%    -0.55MB 26.60%  github.com/jackc/puddle/v2.(*Pool[go.shape.*uint8]).initResourceValue.func1
+         0     0%  8.32%     0.88MB 42.46%  main.initRouter
+         0     0%  8.32%     0.88MB 42.46%  main.initRouter.func2
+         0     0%  8.32%     0.88MB 42.46%  main.main
+         0     0%  8.32%    -0.53MB 25.62%  net.(*Resolver).LookupHost
+         0     0%  8.32%    -0.53MB 25.62%  net.(*Resolver).lookupHost
+         0     0%  8.32%    -0.53MB 25.62%  net.(*conf).hostLookupOrder
+         0     0%  8.32%    -0.53MB 25.62%  net.(*conf).lookupOrder
+         0     0%  8.32%    -0.53MB 25.62%  net.(*resolverConfig).init
+         0     0%  8.32%    -0.53MB 25.62%  net.(*resolverConfig).tryUpdate
+         0     0%  8.32%    -0.53MB 25.62%  net.dnsReadConfig
+         0     0%  8.32%    -0.53MB 25.62%  net.getSystemDNSConfig (inline)
+         0     0%  8.32%    -0.50MB 24.18%  net/http.(*conn).serve
+         0     0%  8.32%    -0.50MB 24.18%  net/http.newBufioWriterSize
+         0     0%  8.32%     0.88MB 42.46%  runtime.main
+         0     0%  8.32%    -0.55MB 26.60%  sync.(*Once).Do (inline)
+         0     0%  8.32%    -0.55MB 26.60%  sync.(*Once).doSlow
