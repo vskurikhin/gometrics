@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 18:09 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -21,6 +21,19 @@ import (
 	"github.com/vskurikhin/gometrics/internal/util"
 )
 
+// ValueJSONHandler обработчик сбора метрик и алертинга, получения метрик с сервера.
+//
+//		POST value/
+//	 Content-Type: application/json
+//
+// Обмен с сервером организуйте с использованием следующей структуры:
+//
+//	type Metrics struct {
+//	    ID    string   `json:"id"`              // имя метрики
+//	    MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+//	    Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+//	    Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+//	}
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
 	store = server.Storage()
 	response.WriteHeader(valueJSONHandler(response, request))

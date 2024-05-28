@@ -1,9 +1,10 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
  * root_handler.go
  * $Id$
  */
 
+// Package handlers Модуль c go-chi обработчиками запросов.
 package handlers
 
 import (

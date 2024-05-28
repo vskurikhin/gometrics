@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -8,20 +8,33 @@ package handlers
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/mailru/easyjson"
-	"go.uber.org/zap"
-
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
+	"go.uber.org/zap"
+	"net/http"
 )
 
+// UpdateJSONHandler обработчик сбора метрик и алертинга, передачи метрик на сервер.
+//
+//		POST update/
+//	 Content-Type: application/json
+//
+// Обмен с сервером организуйте с использованием следующей структуры:
+//
+//	type Metrics struct {
+//	    ID    string   `json:"id"`              // имя метрики
+//	    MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+//	    Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+//	    Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+//	}
 func UpdateJSONHandler(response http.ResponseWriter, request *http.Request) {
-	store = server.Storage()
+	if store == nil {
+		store = server.Storage()
+	}
 	response.WriteHeader(updateJSONHandler(response, request))
 }
 
@@ -53,6 +66,7 @@ func updateJSON(response http.ResponseWriter, request *http.Request) (int, error
 
 	zapFields := util.ZapFieldsMetric(&metric)
 	logger.Log.Debug("got incoming HTTP request with JSON in updateJSON", zapFields.Slice()...)
+
 	updateMetric(&metric)
 
 	if _, err := easyjson.MarshalToWriter(metric, response); err != nil {
