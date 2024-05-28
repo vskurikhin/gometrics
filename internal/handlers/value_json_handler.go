@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 11:48 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -9,7 +9,6 @@ package handlers
 import (
 	"fmt"
 	"github.com/mailru/easyjson"
-	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
@@ -20,12 +19,13 @@ import (
 	"strconv"
 )
 
+//func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
+//	store = server.Storage()
+//	compress.ZHandleWrapper(response, request, plainValueJSONHandler)
+//}
+
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
 	store = server.Storage()
-	compress.ZHandleWrapper(response, request, plainValueJSONHandler)
-}
-
-func plainValueJSONHandler(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(valueJSONHandler(response, request))
 }
 
