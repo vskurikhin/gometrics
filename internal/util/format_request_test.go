@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 21:27 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * format_request_test.go
  * $Id$
  */
@@ -7,10 +7,11 @@
 package util
 
 import (
-	"github.com/vskurikhin/gotool"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/vskurikhin/gotool"
 )
 
 func TestFormatRequest(t *testing.T) {

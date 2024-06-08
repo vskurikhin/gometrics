@@ -1,24 +1,22 @@
 /*
- * This file was last modified at 2024-03-18 11:56 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
  * root_handler.go
  * $Id$
  */
 
+// Package handlers Модуль c go-chi обработчиками запросов.
 package handlers
 
 import (
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/compress"
-	"github.com/vskurikhin/gometrics/internal/logger"
-	"go.uber.org/zap"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/logger"
 )
 
-func RootHandler(response http.ResponseWriter, request *http.Request) {
-	compress.ZHandleWrapper(response, request, plainRootHandler)
-}
-
-func plainRootHandler(response http.ResponseWriter, _ *http.Request) {
+func RootHandler(response http.ResponseWriter, _ *http.Request) {
 	response.WriteHeader(root(response))
 }
 

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-05 08:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
  * updates_json_handler.go
  * $Id$
  */
@@ -8,18 +8,22 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/mailru/easyjson"
+	"go.uber.org/zap"
+
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/util"
-	"go.uber.org/zap"
-	"net/http"
 )
 
 func UpdatesJSONHandler(response http.ResponseWriter, request *http.Request) {
-	store = server.Storage()
+	if store == nil {
+		store = server.Storage()
+	}
 	compress.ZHandleWrapper(response, request, plainUpdatesJSONHandler)
 }
 

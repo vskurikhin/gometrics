@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-03 09:42 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -9,15 +9,17 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/dto"
-	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/types"
-	"github.com/vskurikhin/gometrics/internal/util"
-	"go.uber.org/zap"
 	"io"
 	"os"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/dto"
+	"github.com/vskurikhin/gometrics/internal/logger"
+	"github.com/vskurikhin/gometrics/internal/types"
+	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 type MemStorage struct {
@@ -26,7 +28,6 @@ type MemStorage struct {
 	StoreInterval int
 }
 
-// Deprecated: Get is deprecated.
 func (m *MemStorage) Get(name string) *string {
 	return m.get(name)
 }

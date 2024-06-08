@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 22:29 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * init.go
  * $Id$
  */
@@ -8,12 +8,14 @@ package env
 
 import (
 	"fmt"
-	"github.com/caarlos0/env"
-	"github.com/vskurikhin/gometrics/internal/logger"
-	"go.uber.org/zap"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/caarlos0/env"
+	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/logger"
 )
 
 var (

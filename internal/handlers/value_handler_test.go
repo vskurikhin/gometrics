@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-03 08:47 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
  * value_handler_test.go
  * $Id$
  */
@@ -8,14 +8,18 @@ package handlers
 
 import (
 	"context"
-	"github.com/go-chi/chi/v5"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/server"
+	"go.uber.org/mock/gomock"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/vskurikhin/gometrics/internal/env"
 )
 
 func TestValueHandler(t *testing.T) {
@@ -65,17 +69,18 @@ func TestValueHandler(t *testing.T) {
 			},
 		},
 	}
+	store = server.Storage()
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, env.ValueURL+"{type}/{name}", nil)
 
-			rctx := chi.NewRouteContext()
-			rctx.URLParams.Add("type", test.type_)
-			rctx.URLParams.Add("name", test.variable)
+			ctx := chi.NewRouteContext()
+			ctx.URLParams.Add("type", test.type_)
+			ctx.URLParams.Add("name", test.variable)
 
-			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
 
 			if test.input != "" {
 				store.Put(test.variable, &test.input)
@@ -96,4 +101,37 @@ func TestValueHandler(t *testing.T) {
 			assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))
 		})
 	}
+}
+
+func TestValueHandlerWithMock(t *testing.T) {
+
+	result := "ok"
+	expected := result + "\n"
+
+	ctrl := gomock.NewController(t)
+
+	defer ctrl.Finish()
+
+	m := NewMockStorage(ctrl)
+	store = m
+
+	m.EXPECT().GetCounter("PollCount").Return(&result)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/type/PollCount", nil)
+
+	ctx := chi.NewRouteContext()
+	ctx.URLParams.Add("type", "counter")
+	ctx.URLParams.Add("name", "PollCount")
+
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
+
+	ValueHandler(w, r)
+
+	if status := w.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	assert.Equal(t, expected, w.Body.String())
 }

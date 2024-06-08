@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-03 09:02 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * init_agent_test.go
  * $Id$
  */
@@ -7,9 +7,10 @@
 package env
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestInitAgentWithEnv(t *testing.T) {

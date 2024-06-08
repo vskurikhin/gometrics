@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 22:06 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * server_flags.go
  * $Id$
  */
@@ -7,8 +7,9 @@
 package env
 
 import (
-	"github.com/spf13/pflag"
 	"time"
+
+	"github.com/spf13/pflag"
 )
 
 type serverFlags struct {

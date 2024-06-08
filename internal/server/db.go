@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 12:12 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * db.go
  * $Id$
  */
@@ -10,13 +10,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/logger"
-	"go.uber.org/zap"
 	"sync"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/logger"
 )
 
 type DBHealth interface {
@@ -42,10 +44,6 @@ func DBInit() {
 		CreateSchema()
 		go DBPing()
 	}
-}
-
-func DBHealthInstance() DBHealth {
-	return dbHealth
 }
 
 func PgxPoolInstance() PgxPool {

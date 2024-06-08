@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-03 09:42 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * pgs_storage.go
  * $Id$
  */
@@ -10,14 +10,16 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
+
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/types"
-	"go.uber.org/zap"
-	"strconv"
-	"time"
 )
 
 type PgsStorage struct {
@@ -46,7 +48,6 @@ func New(memory Storage, pool *pgxpool.Pool) *PgsStorage {
 	}
 }
 
-// Deprecated: Get is deprecated.
 func (p *PgsStorage) Get(name string) *string {
 	return p.memory.Get(name)
 }

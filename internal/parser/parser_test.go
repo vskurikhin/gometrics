@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 15:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * parser_test.go
  * $Id$
  */
@@ -8,12 +8,14 @@ package parser
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/vskurikhin/gometrics/internal/types"
 	"net/http"
 	"net/url"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/vskurikhin/gometrics/internal/types"
 )
 
 func TestParser(t *testing.T) {
@@ -169,6 +171,7 @@ func TestStatus(t *testing.T) {
 	}
 }
 
+//goland:noinspection GoUnhandledErrorResult
 func TestCalcValue(t *testing.T) {
 	var tests = []struct {
 		name  string

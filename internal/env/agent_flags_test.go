@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-11 17:31 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * agent_flags_test.go
  * $Id$
  */
@@ -8,9 +8,10 @@ package env
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAgentFlagsURLHost(t *testing.T) {

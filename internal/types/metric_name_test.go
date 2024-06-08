@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-10 12:28 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
  * metric_name_test.go
  * $Id$
  */
@@ -7,8 +7,9 @@
 package types
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNameString(t *testing.T) {

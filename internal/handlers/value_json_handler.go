@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-19 09:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-28 18:09 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -8,24 +8,34 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/mailru/easyjson"
-	"github.com/vskurikhin/gometrics/internal/compress"
+	"go.uber.org/zap"
+
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
-	"go.uber.org/zap"
-	"net/http"
-	"strconv"
 )
 
+// ValueJSONHandler обработчик сбора метрик и алертинга, получения метрик с сервера.
+//
+//		POST value/
+//	 Content-Type: application/json
+//
+// Обмен с сервером организуйте с использованием следующей структуры:
+//
+//	type Metrics struct {
+//	    ID    string   `json:"id"`              // имя метрики
+//	    MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+//	    Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+//	    Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+//	}
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
 	store = server.Storage()
-	compress.ZHandleWrapper(response, request, plainValueJSONHandler)
-}
-
-func plainValueJSONHandler(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(valueJSONHandler(response, request))
 }
 
