@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package parser парсер
 package parser
 
 import (

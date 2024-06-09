@@ -115,11 +115,14 @@ func newRequest(metrics dto.Metrics) (*http.Request, error) {
 	gz, err := gzip.NewWriterLevel(&b2, gzip.BestSpeed)
 
 	if err != nil {
-		io.WriteString(&b1, err.Error())
+		//nolint:multichecker,errcheck
+		_, _ = io.WriteString(&b1, err.Error())
 		return nil, err
 	}
-	gz.Write(b1.Bytes())
-	gz.Close()
+	//nolint:multichecker,errcheck
+	_, _ = gz.Write(b1.Bytes())
+	//nolint:multichecker,errcheck
+	_ = gz.Close()
 
 	path := *env.Agent.URLHost() + env.UpdatesURL
 	request, err := http.NewRequest(http.MethodPost, path, &b2)
@@ -138,8 +141,8 @@ func postDo(client *http.Client, request *http.Request) error {
 
 	defer func() {
 		if response != nil {
-			//goland:noinspection GoUnhandledErrorResult
-			response.Body.Close()
+			//nolint:multichecker,errcheck
+			_ = response.Body.Close()
 		}
 	}()
 	return err

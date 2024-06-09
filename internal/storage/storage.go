@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package storage работа с подсистемой хранения
 package storage
 
 import "github.com/vskurikhin/gometrics/internal/dto"

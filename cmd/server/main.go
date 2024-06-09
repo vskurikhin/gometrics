@@ -1,6 +1,6 @@
 /*
  * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
- * main.go
+ * main_test.go.go
  * $Id$
  */
 

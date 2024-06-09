@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package env работа с настройками и окружением
 package env
 
 type config struct {

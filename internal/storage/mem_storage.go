@@ -48,7 +48,7 @@ func (m *MemStorage) get(name string) *string {
 	return m.Metrics[name]
 }
 
-// Deprecated: Put is deprecated.
+// Put is deprecated.
 func (m *MemStorage) Put(name string, value *string) {
 	m.put(name, value)
 }
@@ -120,7 +120,13 @@ func (m *MemStorage) readFromFile(zf util.ZapFields, fileName string) (int, erro
 		logger.Log.Error("in ReadFromFile", zf.Slice()...)
 		return 0, nil
 	}
-	defer file.Close()
+	defer func() {
+		e := file.Close()
+		if e != nil {
+			zf.Append("error", err)
+			logger.Log.Error("in Close", zf.Slice()...)
+		}
+	}()
 
 	buf, err := io.ReadAll(file)
 
@@ -184,7 +190,13 @@ func (m *MemStorage) saveToFile(zf util.ZapFields, fileName string) ([]byte, int
 		logger.Log.Error("in SaveToFile", zf.Slice()...)
 		return nil, 0
 	}
-	defer file.Close()
+	defer func() {
+		e := file.Close()
+		if e != nil {
+			zf.Append("error", err)
+			logger.Log.Error("in Close", zf.Slice()...)
+		}
+	}()
 
 	n, err := file.Write(out)
 

@@ -57,18 +57,22 @@ stop-agent:
 
 restart-server: stop-server start-server
 
-build: go-build-agent go-build-server
+build: go-build-agent go-build-multichecker go-build-server
 
 ## clean: Clean build files. Runs `go clean` internally.
 clean:
 	@(MAKEFILE) go-clean
 
 ## compile: Compile the binary.
-go-compile: go-build-agent go-build-server
+go-compile: go-build-agent go-build-multichecker go-build-server
 
 go-build-agent:
 	@echo "  >  Building agent binary..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/agent && go build -o $(GOBIN)/agent $(GOFILES)
+
+go-build-multichecker:
+	@echo "  >  Building multi checker binary..."
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/staticlint && go build -o $(GOBIN)/multichecker $(GOFILES)
 
 go-build-server:
 	@echo "  >  Building server binary..."
@@ -100,25 +104,29 @@ go-clean:
 	@echo "  >  Cleaning build cache"
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
 
+go-vet:
+	@echo "  >  Vet uses for test"
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go vet ./...
+
 test14: test13
 	@echo "  > Test Iteration 14 ..."
-	cd bin && ./metricstest -test.v -test.run=^TestIteration14$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -key="key" -source-path=../.
+	cd bin && ./metricstest -test.v -test.run=^TestIteration14$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@localhost:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -key="key" -source-path=../.
 
 test13: test12
 	@echo "  > Test Iteration 13 ..."
-	cd bin && ./metricstest -test.v -test.run=^TestIteration13$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
+	cd bin && ./metricstest -test.v -test.run=^TestIteration13$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@localhost:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 
 test12: test11
 	@echo "  > Test Iteration 12 ..."
-	cd bin && ./metricstest -test.v -test.run=^TestIteration12$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
+	cd bin && ./metricstest -test.v -test.run=^TestIteration12$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@localhost:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 
 test11: test10
 	@echo "  > Test Iteration 11 ..."
-	cd bin && ./metricstest -test.v -test.run=^TestIteration11$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
+	cd bin && ./metricstest -test.v -test.run=^TestIteration11$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@localhost:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 
 test10: test9
 	@echo "  > Test Iteration 10 ..."
-	cd bin && ./metricstest -test.v -test.run=^TestIteration10$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
+	cd bin && ./metricstest -test.v -test.run=^TestIteration10$$ -agent-binary-path=./agent -binary-path=./server -database-dsn='postgres://postgres:postgres@localhost:5432/praktikum?sslmode=disable' -server-port=$(SERVER_PORT) -file-storage-path=$(TEMP_FILE) -source-path=../.
 
 test9: test8
 	@echo "  > Test Iteration 9 ..."
