@@ -16,22 +16,9 @@ var Log *zap.Logger
 
 //goland:noinspection GoUnhandledErrorResult
 func init() {
-	if false {
-		logger, err := zap.NewProduction()
-		if err != nil {
-			panic(err)
-		}
-		defer func() {
-			//nolint:multichecker,errcheck
-			_ = logger.Sync() // flushes buffer, if any
-		}()
-		Log := logger.Sugar()
-		_ = Log
-	} else {
-		Log = zap.NewExample()
-		defer func() {
-			//nolint:multichecker,errcheck
-			_ = Log.Sync()
-		}()
-	}
+	Log = zap.NewExample()
+	defer func() {
+		//nolint:multichecker,errcheck
+		_ = Log.Sync()
+	}()
 }

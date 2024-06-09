@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 11:07 by Victor N. Skurikhin.
  * updates_json_handler_test.go
  * $Id$
  */
@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"io"
@@ -22,6 +23,7 @@ import (
 )
 
 func TestUpdatesJSONHandler(t *testing.T) {
+	var f = 1.1
 	type want struct {
 		code        int
 		response    string
@@ -29,17 +31,17 @@ func TestUpdatesJSONHandler(t *testing.T) {
 	}
 	tests := []struct {
 		name     string
-		input    map[string]interface{}
+		input    dto.Metric
 		type_    string
 		variable string
 		want     want
 	}{
 		{
 			name: "positive test #1",
-			input: map[string]interface{}{
-				"id":    "Alloc",
-				"type":  "gauge",
-				"value": 1.1,
+			input: dto.Metric{
+				ID:    "Alloc",
+				MType: "gauge",
+				Value: &f,
 			},
 			type_:    "gauge",
 			variable: "Alloc",
@@ -51,10 +53,9 @@ func TestUpdatesJSONHandler(t *testing.T) {
 		},
 		{
 			name: "negative test #1",
-			input: map[string]interface{}{
-				"id":    "Alloc",
-				"type":  "gauge",
-				"value": "1.1",
+			input: dto.Metric{
+				ID:    "Alloc",
+				MType: "gauge",
 			},
 			type_:    "",
 			variable: "Alloc",
@@ -69,7 +70,7 @@ func TestUpdatesJSONHandler(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
-			s := make([]map[string]interface{}, 0)
+			s := make(dto.Metrics, 0)
 			s = append(s, test.input)
 			body, _ := json.Marshal(s)
 

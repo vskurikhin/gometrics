@@ -13,6 +13,7 @@ require (
 	github.com/vskurikhin/gotool v0.0.0-20240105082849-398ef8bedcbd
 	go.uber.org/mock v0.4.0
 	go.uber.org/zap v1.27.0
+	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	golang.org/x/tools v0.22.0
 	honnef.co/go/tools v0.4.7
 )
