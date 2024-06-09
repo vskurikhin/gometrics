@@ -1,7 +1,12 @@
-package main
+/*
+ * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
+ * os_exit_check_test.go
+ * $Id$
+ */
+
+package analyzer
 
 import (
-	"github.com/vskurikhin/gometrics/internal/analyzer"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/analysistest"
 	"testing"
@@ -10,7 +15,7 @@ import (
 var OsExitCheckAnalyzer = &analysis.Analyzer{
 	Name: "osexitcheck",
 	Doc:  "check for call os.Exit errors",
-	Run:  analyzer.CheckCallOsExit,
+	Run:  CheckCallOsExit,
 }
 
 func TestMyAnalyzer(t *testing.T) {

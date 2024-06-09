@@ -68,7 +68,7 @@ go-compile: go-build-agent go-build-multichecker go-build-server
 
 go-build-agent:
 	@echo "  >  Building agent binary..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/agent && go build -o $(GOBIN)/agent $(GOFILES)
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/agent && go build -ldflags "-X main.buildVersion=v1.0.1 -X 'main.buildDate=$$(date +'%Y/%m/%d')' -X 'main.buildCommit=$$(git rev-parse HEAD)'" -o $(GOBIN)/agent $(GOFILES)
 
 go-build-multichecker:
 	@echo "  >  Building multi checker binary..."
@@ -76,7 +76,7 @@ go-build-multichecker:
 
 go-build-server:
 	@echo "  >  Building server binary..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/server && go build -o $(GOBIN)/server $(GOFILES)
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/server && go build -ldflags "-X main.buildVersion=v1.0.1 -X 'main.buildDate=$$(date +'%Y/%m/%d')' -X 'main.buildCommit=$$(git rev-parse HEAD)'"  -o $(GOBIN)/server $(GOFILES)
 
 go-generate:
 	@echo "  >  Generating dependency files..."

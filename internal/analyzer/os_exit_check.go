@@ -1,3 +1,9 @@
+/*
+ * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
+ * os_exit_check.go
+ * $Id$
+ */
+
 // Package analyzer анализатор, запрещающий использовать прямой вызов os.Exit в функции main пакета main
 package analyzer
 

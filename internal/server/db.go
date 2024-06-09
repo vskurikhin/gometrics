@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-11 09:46 by Victor N. Skurikhin.
  * db.go
  * $Id$
  */
@@ -10,13 +10,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/util"
+	"go.uber.org/zap"
 	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"go.uber.org/zap"
-
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/logger"
 )
@@ -27,7 +27,7 @@ type DBHealth interface {
 }
 
 type PgxPool interface {
-	GetPool() *pgxpool.Pool
+	getPool() *pgxpool.Pool
 }
 
 type PgxPoolHealth struct {
@@ -38,25 +38,23 @@ type PgxPoolHealth struct {
 
 var dbHealth = new(PgxPoolHealth)
 
-func DBInit() {
-	if env.Server.IsDBSetup() {
-		DBConnect()
+func DBInit(cfg env.Config) {
+	if cfg.IsDBSetup() {
+		dbConnect(cfg)
 		CreateSchema()
-		go DBPing()
+		go dbPing()
 	}
 }
 
-func PgxPoolInstance() PgxPool {
+func pgxPoolInstance() PgxPool {
 	return dbHealth
 }
 
-func DBConnect() *pgxpool.Pool {
+func dbConnect(cfg env.Config) {
 
-	config, err := pgxpool.ParseConfig(*env.Server.DataBaseDSN())
-	if err != nil {
-		panic(err)
-	}
-	logger.Log.Debug("DBConnect config parsed")
+	config, err := pgxpool.ParseConfig(cfg.DataBaseDSN())
+	util.IfErrorThenPanic(err)
+	logger.Log.Debug("dbConnect config parsed")
 
 	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
 		logger.Log.Debug("Acquire connect ping...")
@@ -68,18 +66,12 @@ func DBConnect() *pgxpool.Pool {
 	}
 
 	pool, err := pgxpool.NewWithConfig(context.TODO(), config)
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	logger.Log.Debug("NewWithConfig pool created")
 	_, err = pool.Acquire(context.TODO())
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	logger.Log.Debug("Acquire pool Ok")
 	dbHealth.pool = pool
-
-	return pool
 }
 
 func (p *PgxPoolHealth) GetStatus() bool {
@@ -120,20 +112,16 @@ func (p *PgxPoolHealth) checkStatus() error {
 	return nil
 }
 
-func (p *PgxPoolHealth) GetPool() *pgxpool.Pool {
+func (p *PgxPoolHealth) getPool() *pgxpool.Pool {
 	return dbHealth.pool
 }
 
-func DBPing() {
-	for {
-		dbPing()
-	}
-}
-
 func dbPing() {
-	time.Sleep(2 * time.Second)
-	err := dbHealth.checkStatus()
-	if err != nil {
-		logger.Log.Debug("db health checkStatus ", zap.String("error", fmt.Sprintf("%v", err)))
+	for {
+		time.Sleep(2 * time.Second)
+		err := dbHealth.checkStatus()
+		if err != nil {
+			logger.Log.Debug("db health checkStatus ", zap.String("error", fmt.Sprintf("%v", err)))
+		}
 	}
 }

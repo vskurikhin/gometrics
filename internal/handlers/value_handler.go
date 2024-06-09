@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-11 10:35 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -8,13 +8,14 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 )
 
@@ -26,18 +27,18 @@ import (
 // возвращает текущее значение метрики в текстовом виде со статусом http.StatusOK.
 func ValueHandler(response http.ResponseWriter, request *http.Request) {
 
-	if store == nil {
-		store = server.Storage()
-	}
 	typ := chi.URLParam(request, "type")
 	name := chi.URLParam(request, "name")
 	num := types.Lookup(name)
 
 	if num < 1 || num.GetMetric().MetricType().Eq(typ) {
 		var value *string
+
 		if num > 0 {
 			name = num.String()
 		}
+		store = server.Storage(env.GetServerConfig())
+
 		switch strings.ToLower(typ) {
 		case "counter":
 			value = store.GetCounter(name)

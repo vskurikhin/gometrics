@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-11 10:35 by Victor N. Skurikhin.
  * updates_json_handler.go
  * $Id$
  */
@@ -8,6 +8,8 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"net/http"
 
 	"github.com/mailru/easyjson"
@@ -16,14 +18,10 @@ import (
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 func UpdatesJSONHandler(response http.ResponseWriter, request *http.Request) {
-	if store == nil {
-		store = server.Storage()
-	}
 	compress.ZHandleWrapper(response, request, plainUpdatesJSONHandler)
 }
 
@@ -62,6 +60,7 @@ func updatesJSON(response http.ResponseWriter, request *http.Request) (int, erro
 		zapFields := util.ZapFieldsMetric(&metric)
 		logger.Log.Debug("got incoming HTTP request with JSON in updatesJSON", zapFields.Slice()...)
 	}
+	store = server.Storage(env.GetServerConfig())
 	store.PutSlice(metrics)
 
 	if _, err := easyjson.MarshalToWriter(metrics, response); err != nil {

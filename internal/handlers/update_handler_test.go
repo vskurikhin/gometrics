@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-11 10:17 by Victor N. Skurikhin.
  * update_handler_test.go
  * $Id$
  */
@@ -9,6 +9,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -57,6 +58,8 @@ func TestUpdateHandler(t *testing.T) {
 			},
 		},
 	}
+	cfg := getTestConfig()
+	server.Storage(cfg)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 

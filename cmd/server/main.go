@@ -1,38 +1,33 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
- * main_test.go.go
+ * This file was last modified at 2024-06-11 10:06 by Victor N. Skurikhin.
+ * main.go
  * $Id$
  */
 
 package main
 
 import (
-	"net/http"
-	_ "net/http/pprof" // подключаем пакет pprof
-
+	"context"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
-
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/handlers"
 	"github.com/vskurikhin/gometrics/internal/server"
+	"github.com/vskurikhin/gometrics/internal/util"
+	"net/http"
+	_ "net/http/pprof" // подключаем пакет pprof
+)
+
+var (
+	buildVersion = "N/A"
+	buildDate    = "N/A"
+	buildCommit  = "N/A"
 )
 
 func main() {
-
-	env.InitServer()
-	server.DBInit()
-	server.Storage()
-	server.Read()
-
-	router := initRouter()
-
-	go server.Save()
-	err := http.ListenAndServe(env.Server.ServerAddress(), router)
-	if err != nil {
-		panic(err)
-	}
+	run(context.Background())
 }
 
 func initRouter() *chi.Mux {
@@ -58,4 +53,26 @@ func initRouter() *chi.Mux {
 	})
 
 	return router
+}
+
+func run(ctx context.Context) {
+
+	fmt.Printf(
+		"Build version: %s\nBuild date: %s\nBuild commit: %s\n",
+		buildVersion, buildDate, buildCommit,
+	)
+	cfg := env.GetServerConfig()
+	fmt.Print(cfg)
+
+	server.DBInit(cfg)
+	server.Storage(cfg)
+	server.Read(cfg)
+
+	router := initRouter()
+
+	go func() {
+		err := http.ListenAndServe(cfg.ServerAddress(), router)
+		util.IfErrorThenPanic(err)
+	}()
+	server.Save(ctx, cfg)
 }
