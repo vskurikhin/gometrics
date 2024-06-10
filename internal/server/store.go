@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-04-03 09:42 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 19:19 by Victor N. Skurikhin.
  * store.go
  * $Id$
  */
@@ -19,9 +19,9 @@ func init() {
 	mem.Metrics = make(map[string]*string)
 }
 
-func Storage() storage.Storage {
+func Storage(cfg env.Config) storage.Storage {
 	if store == nil {
-		if env.Server.IsDBSetup() {
+		if cfg.IsDBSetup() {
 			store = storage.New(mem, PgxPoolInstance().GetPool())
 		} else {
 			store = mem

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 21:58 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/util"
 	"io"
 	"net/http"
 	"strconv"
@@ -24,17 +25,17 @@ import (
 	"github.com/vskurikhin/gometrics/internal/types"
 )
 
-func Reports(enabled []types.Name) {
+func Reports(cfg env.Config, enabled []types.Name) {
 
 	client := http.Client{}
 	for {
-		reports(enabled, &client)
+		reports(cfg, enabled, &client)
 	}
 }
 
-func reports(enabled []types.Name, client *http.Client) {
+func reports(cfg env.Config, enabled []types.Name, client *http.Client) {
 
-	time.Sleep(env.Agent.ReportInterval() * time.Second)
+	time.Sleep(cfg.ReportInterval() * time.Second)
 
 	metrics := make(dto.Metrics, 0)
 
@@ -44,12 +45,8 @@ func reports(enabled []types.Name, client *http.Client) {
 			metrics = append(metrics, *metric)
 		}
 	}
-	request, err := newRequest(metrics)
-
-	if err != nil {
-		panic(err)
-	}
-
+	request, err := newRequest(cfg, metrics)
+	util.IfErrorThenPanic(err)
 	err = postDo(client, request)
 
 	for i := 1; err != nil && i < 6; i += 2 {
@@ -87,25 +84,20 @@ func getMetric(n types.Name) *dto.Metric {
 		switch n.GetMetric().MetricType() {
 		case types.COUNTER:
 			i64, err := strconv.ParseInt(*value, 10, 64)
-			if err != nil {
-				panic(err)
-			}
+			util.IfErrorThenPanic(err)
 			metric.Delta = &i64
 		case types.GAUGE:
 			f64, err := strconv.ParseFloat(*value, 64)
-			if err != nil {
-				panic(err)
-			}
+			util.IfErrorThenPanic(err)
 			metric.Value = &f64
 		}
-
 		return &metric
 	}
 	return nil
 }
 
 //goland:noinspection GoUnhandledErrorResult
-func newRequest(metrics dto.Metrics) (*http.Request, error) {
+func newRequest(cfg env.Config, metrics dto.Metrics) (*http.Request, error) {
 
 	var b1, b2 bytes.Buffer
 
@@ -124,7 +116,7 @@ func newRequest(metrics dto.Metrics) (*http.Request, error) {
 	//nolint:multichecker,errcheck
 	_ = gz.Close()
 
-	path := *env.Agent.URLHost() + env.UpdatesURL
+	path := *cfg.URLHost() + env.UpdatesURL
 	request, err := http.NewRequest(http.MethodPost, path, &b2)
 
 	if err != nil {

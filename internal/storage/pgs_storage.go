@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 22:03 by Victor N. Skurikhin.
  * pgs_storage.go
  * $Id$
  */
@@ -10,6 +10,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/util"
 	"strconv"
 	"time"
 
@@ -70,17 +71,13 @@ func (p *PgsStorage) GetCounter(name string) *string {
 		)
 		row, err = p.getSQL(sqlSelectGauge, name)
 	}
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	var counter sql.NullInt64
-
 	err = row.Scan(&counter)
 
 	if err != nil {
 		return nil
 	}
-
 	if counter.Valid {
 		result := fmt.Sprintf("%d", counter.Int64)
 		return &result
@@ -106,12 +103,8 @@ func (p *PgsStorage) GetGauge(name string) *string {
 		)
 		row, err = p.getSQL(sqlSelectGauge, name)
 	}
-
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	var gauge sql.NullFloat64
-
 	err = row.Scan(&gauge)
 
 	if err != nil {
@@ -141,6 +134,7 @@ func (p *PgsStorage) getSQL(sql, name string) (pgx.Row, error) {
 	}()
 
 	conn, err := p.pool.Acquire(ctx)
+
 	for i := 1; err != nil && i < 6; i += 2 {
 		time.Sleep(time.Duration(i) * time.Second)
 		logger.Log.Debug("retry pool acquire",
@@ -169,28 +163,18 @@ func (p *PgsStorage) Put(name string, value *string) {
 func (p *PgsStorage) PutCounter(name string, value *string) {
 
 	counter, err := strconv.Atoi(*value)
-
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	err = p.putSQL(sqlInsertCounter, name, counter)
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	p.memory.Put(name, value)
 }
 
 func (p *PgsStorage) PutGauge(name string, value *string) {
 
 	gauge, err := strconv.ParseFloat(*value, 64)
-
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	err = p.putSQL(sqlInsertGauge, name, gauge)
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	p.memory.Put(name, value)
 }
 

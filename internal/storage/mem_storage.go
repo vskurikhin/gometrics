@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 22:06 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -100,9 +100,7 @@ func (m *MemStorage) ReadFromFile(fileName string) {
 	zapFields.AppendString("fileName", &fileName)
 
 	n, err := m.readFromFile(zapFields, fileName)
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	zapFields.AppendInt("read bytes", n)
 	zapFields.Append("m.Metrics", m.Metrics)
 	logger.Log.Debug("in ReadFromFile", zapFields.Slice()...)

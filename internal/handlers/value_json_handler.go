@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 18:09 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 22:01 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -8,6 +8,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"net/http"
 	"strconv"
 
@@ -35,7 +36,7 @@ import (
 //	    Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 //	}
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
-	store = server.Storage()
+	store = server.Storage(env.GetServerConfig())
 	response.WriteHeader(valueJSONHandler(response, request))
 }
 
@@ -73,9 +74,8 @@ func valueJSON(response http.ResponseWriter, request *http.Request) {
 func valueMetric(metric *dto.Metric) {
 
 	var err error
-
-	num := types.Lookup(metric.ID)
 	var name string
+	num := types.Lookup(metric.ID)
 
 	if num > 0 {
 		name = num.String()
@@ -97,7 +97,5 @@ func valueMetric(metric *dto.Metric) {
 			*metric.Delta, err = strconv.ParseInt(*value, 10, 64)
 		}
 	}
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 }

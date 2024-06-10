@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 22:41 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 22:05 by Victor N. Skurikhin.
  * create_schema.go
  * $Id$
  */
@@ -9,6 +9,7 @@ package server
 
 import (
 	"context"
+	"github.com/vskurikhin/gometrics/internal/util"
 	"time"
 )
 
@@ -32,10 +33,6 @@ func CreateSchema() {
 	if conn == nil || err != nil {
 		panic(err)
 	}
-	_, err = conn.Exec(ctx, "CREATE TYPE public.TYPE AS ENUM ('gauge', 'counter')")
-	if err != nil {
-		panic(err)
-	}
 	_, err = conn.Exec(ctx,
 		`CREATE TABLE IF NOT EXISTS metric (
 					id BIGSERIAL,
@@ -45,15 +42,11 @@ func CreateSchema() {
 					counter BIGINT
 					)`,
 	)
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	_, err = conn.Exec(ctx,
 		`CREATE TABLE IF NOT EXISTS name (
 					name TEXT NOT NULL UNIQUE
 					)`,
 	)
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 }

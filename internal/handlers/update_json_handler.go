@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 17:40 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/vskurikhin/gometrics/internal/dto"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
@@ -33,7 +34,7 @@ import (
 //	}
 func UpdateJSONHandler(response http.ResponseWriter, request *http.Request) {
 	if store == nil {
-		store = server.Storage()
+		store = server.Storage(env.GetServerConfig())
 	}
 	response.WriteHeader(updateJSONHandler(response, request))
 }

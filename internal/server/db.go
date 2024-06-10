@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 22:05 by Victor N. Skurikhin.
  * db.go
  * $Id$
  */
@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/util"
 	"sync"
 	"time"
 
@@ -38,9 +39,9 @@ type PgxPoolHealth struct {
 
 var dbHealth = new(PgxPoolHealth)
 
-func DBInit() {
-	if env.Server.IsDBSetup() {
-		DBConnect()
+func DBInit(cfg env.Config) {
+	if cfg.IsDBSetup() {
+		DBConnect(cfg)
 		CreateSchema()
 		go DBPing()
 	}
@@ -50,12 +51,10 @@ func PgxPoolInstance() PgxPool {
 	return dbHealth
 }
 
-func DBConnect() *pgxpool.Pool {
+func DBConnect(cfg env.Config) *pgxpool.Pool {
 
-	config, err := pgxpool.ParseConfig(*env.Server.DataBaseDSN())
-	if err != nil {
-		panic(err)
-	}
+	config, err := pgxpool.ParseConfig(cfg.DataBaseDSN())
+	util.IfErrorThenPanic(err)
 	logger.Log.Debug("DBConnect config parsed")
 
 	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
@@ -68,16 +67,13 @@ func DBConnect() *pgxpool.Pool {
 	}
 
 	pool, err := pgxpool.NewWithConfig(context.TODO(), config)
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	logger.Log.Debug("NewWithConfig pool created")
 	_, err = pool.Acquire(context.TODO())
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 	logger.Log.Debug("Acquire pool Ok")
 	dbHealth.pool = pool
+	fmt.Printf("dbHealth.pool: %v\n", dbHealth.pool)
 
 	return pool
 }

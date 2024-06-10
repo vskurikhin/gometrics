@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 17:40 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -8,6 +8,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"io"
 	"net/http"
 	"strings"
@@ -27,7 +28,7 @@ import (
 func ValueHandler(response http.ResponseWriter, request *http.Request) {
 
 	if store == nil {
-		store = server.Storage()
+		store = server.Storage(env.GetServerConfig())
 	}
 	typ := chi.URLParam(request, "type")
 	name := chi.URLParam(request, "name")

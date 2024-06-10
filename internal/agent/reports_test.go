@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 11:20 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 17:45 by Victor N. Skurikhin.
  * reports_test.go
  * $Id$
  */
@@ -31,9 +31,9 @@ func TestReports(t *testing.T) {
 		t.Fatalf("len(%s) < 2", a)
 	}
 	t.Setenv("ADDRESS", a[1])
-	env.InitAgent()
+	cfg := env.GetAgentConfig()
 	client := http.Client{}
-	reports(enabled, &client)
+	reports(cfg, enabled, &client)
 	testServer.Close()
-	reports(enabled, &client)
+	reports(cfg, enabled, &client)
 }

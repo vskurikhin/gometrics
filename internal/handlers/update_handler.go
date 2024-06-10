@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 18:23 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 18:56 by Victor N. Skurikhin.
  * update_handler.go
  * $Id$
  */
@@ -7,13 +7,11 @@
 package handlers
 
 import (
-	"fmt"
-	"net/http"
-	"os"
-
+	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/parser"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
+	"net/http"
 )
 
 // UpdateHandler обработчик сбора метрик и алертинга.
@@ -38,12 +36,10 @@ import (
 // • counter, int64 — новое значение должно добавляться к предыдущему, если какое-то значение уже было известно серверу.
 func UpdateHandler(response http.ResponseWriter, request *http.Request) {
 
-	store = server.Storage()
+	store = server.Storage(env.GetServerConfig())
 
 	defer func() {
 		if p := recover(); p != nil {
-			//goland:noinspection GoUnhandledErrorResult
-			fmt.Fprintf(os.Stderr, "update error: %v", p)
 			response.WriteHeader(http.StatusNotFound)
 		}
 	}()

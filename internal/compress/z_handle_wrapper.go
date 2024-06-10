@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 22:31 by Victor N. Skurikhin.
  * z_handle_wrapper.go
  * $Id$
  */
@@ -32,9 +32,7 @@ func ZHandleWrapper(w http.ResponseWriter, r *http.Request, handler func(http.Re
 		// некоторые реализации могут рассчитывать на закрытие читателя
 		// gz.Close() не вызывает закрытия r.Body - это будет сделано позже, http-сервером
 		//nolint:multichecker,errcheck
-		defer func() {
-			_ = gz.Close()
-		}()
+		defer func() { _ = gz.Close() }()
 		r.Body = gz
 	}
 	handler(w, r)

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 11:07 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 17:45 by Victor N. Skurikhin.
  * updates_json_handler_test.go
  * $Id$
  */
@@ -66,7 +66,8 @@ func TestUpdatesJSONHandler(t *testing.T) {
 			},
 		},
 	}
-	store = server.Storage()
+	cfg := env.GetServerConfig()
+	store = server.Storage(cfg)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
