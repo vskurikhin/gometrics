@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package types типы и имена метрик
 package types
 
 import "strings"

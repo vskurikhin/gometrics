@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package agent реализация агента
 package agent
 
 import (

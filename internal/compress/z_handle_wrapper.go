@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package compress сжатие
 package compress
 
 import (
@@ -30,8 +31,10 @@ func ZHandleWrapper(w http.ResponseWriter, r *http.Request, handler func(http.Re
 		// текущая реализация не требует закрытия, тем не менее лучше это делать -
 		// некоторые реализации могут рассчитывать на закрытие читателя
 		// gz.Close() не вызывает закрытия r.Body - это будет сделано позже, http-сервером
-		//goland:noinspection GoUnhandledErrorResult
-		defer gz.Close()
+		//nolint:multichecker,errcheck
+		defer func() {
+			_ = gz.Close()
+		}()
 		r.Body = gz
 	}
 	handler(w, r)

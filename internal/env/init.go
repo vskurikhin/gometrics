@@ -78,7 +78,6 @@ func InitServer() {
 
 	initServerFlags()
 
-	var cfg config
 	err := env.Parse(&cfg)
 	if err != nil {
 		log.Fatal(err)

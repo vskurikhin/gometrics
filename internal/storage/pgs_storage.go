@@ -161,7 +161,7 @@ func (p *PgsStorage) getSQL(sql, name string) (pgx.Row, error) {
 	return conn.QueryRow(ctx, sql, name), nil
 }
 
-// Deprecated: Put is deprecated.
+// Put is deprecated.
 func (p *PgsStorage) Put(name string, value *string) {
 	p.memory.Put(name, value)
 }

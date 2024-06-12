@@ -62,6 +62,13 @@ jobs:
           cd cmd/server
           go build -buildvcs=false -o server
 
+
+      - name: Build staticlint binary
+        run: |
+          cd cmd/staticlint
+          go build -buildvcs=false -o multichecker
+
+
       - name: "Code increment #1"
         if: |
           github.ref == 'refs/heads/main' ||

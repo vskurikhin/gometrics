@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package logger настройки логгирования
 package logger
 
 import (
@@ -15,13 +16,9 @@ var Log *zap.Logger
 
 //goland:noinspection GoUnhandledErrorResult
 func init() {
-	if false {
-		logger, _ := zap.NewProduction()
-		defer logger.Sync() // flushes buffer, if any
-		Log := logger.Sugar()
-		_ = Log
-	} else {
-		Log = zap.NewExample()
-		defer Log.Sync()
-	}
+	Log = zap.NewExample()
+	defer func() {
+		//nolint:multichecker,errcheck
+		_ = Log.Sync()
+	}()
 }

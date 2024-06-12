@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 11:06 by Victor N. Skurikhin.
  * update_json_handler_test.go
  * $Id$
  */
@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"go.uber.org/mock/gomock"
 	"io"
@@ -22,6 +23,7 @@ import (
 )
 
 func TestUpdateJSONHandler(t *testing.T) {
+	var f = 1.1
 	type want struct {
 		code        int
 		response    string
@@ -29,17 +31,17 @@ func TestUpdateJSONHandler(t *testing.T) {
 	}
 	tests := []struct {
 		name     string
-		input    map[string]interface{}
+		input    dto.Metric
 		type_    string
 		variable string
 		want     want
 	}{
 		{
 			name: "positive test #1",
-			input: map[string]interface{}{
-				"id":    "Alloc",
-				"type":  "gauge",
-				"value": 1.1,
+			input: dto.Metric{
+				ID:    "Alloc",
+				MType: "gauge",
+				Value: &f,
 			},
 			type_:    "gauge",
 			variable: "Alloc",
@@ -51,10 +53,9 @@ func TestUpdateJSONHandler(t *testing.T) {
 		},
 		{
 			name: "negative test #1",
-			input: map[string]interface{}{
-				"id":    "Alloc",
-				"type":  "gauge",
-				"value": "1.1",
+			input: dto.Metric{
+				ID:    "Alloc",
+				MType: "gauge",
 			},
 			type_:    "",
 			variable: "Alloc",
@@ -93,6 +94,7 @@ func TestUpdateJSONHandler(t *testing.T) {
 }
 
 func TestUpdateJSONHandlerWithMock(t *testing.T) {
+	var i int64 = 1
 	type want struct {
 		code        int
 		response    string
@@ -100,17 +102,17 @@ func TestUpdateJSONHandlerWithMock(t *testing.T) {
 	}
 	tests := []struct {
 		name     string
-		input    map[string]interface{}
+		input    dto.Metric
 		type_    string
 		variable string
 		want     want
 	}{
 		{
 			name: "positive test #2",
-			input: map[string]interface{}{
-				"id":    "PollCount",
-				"type":  "counter",
-				"delta": 1,
+			input: dto.Metric{
+				ID:    "PollCount",
+				MType: "counter",
+				Delta: &i,
 			},
 			type_:    "gauge",
 			variable: "Alloc",

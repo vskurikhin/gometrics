@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -7,6 +7,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	_ "net/http/pprof" // подключаем пакет pprof
 
@@ -19,7 +20,15 @@ import (
 	"github.com/vskurikhin/gometrics/internal/server"
 )
 
+var (
+	buildVersion = "N/A"
+	buildDate    = "N/A"
+	buildCommit  = "N/A"
+)
+
 func main() {
+
+	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
 
 	env.InitServer()
 	server.DBInit()

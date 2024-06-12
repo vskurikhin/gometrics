@@ -6,5 +6,6 @@
 
 package dto
 
+// Metrics метрики
 // easyjson:json
 type Metrics []Metric

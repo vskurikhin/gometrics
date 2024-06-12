@@ -4,10 +4,12 @@
  * $Id$
  */
 
+// Package util вспомогательные функции
 package util
 
 import (
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/logger"
 	"net/http"
 	"strings"
 )
@@ -31,7 +33,10 @@ func FormatRequest(r *http.Request) string {
 
 	// Если это POST, добавить данные
 	if r.Method == http.MethodPost {
-		r.ParseForm()
+		err := r.ParseForm()
+		if err != nil {
+			logger.Log.Error("error ParseForm for POST")
+		}
 		request = append(request, "\n")
 		request = append(request, r.Form.Encode())
 	}

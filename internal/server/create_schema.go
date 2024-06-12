@@ -4,6 +4,7 @@
  * $Id$
  */
 
+// Package server реализация серверных частей
 package server
 
 import (
@@ -31,8 +32,10 @@ func CreateSchema() {
 	if conn == nil || err != nil {
 		panic(err)
 	}
-	//goland:noinspection GoUnhandledErrorResult
-	conn.Exec(ctx, "CREATE TYPE public.TYPE AS ENUM ('gauge', 'counter')")
+	_, err = conn.Exec(ctx, "CREATE TYPE public.TYPE AS ENUM ('gauge', 'counter')")
+	if err != nil {
+		panic(err)
+	}
 	_, err = conn.Exec(ctx,
 		`CREATE TABLE IF NOT EXISTS metric (
 					id BIGSERIAL,
