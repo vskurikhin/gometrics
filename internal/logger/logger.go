@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-29 12:50 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * logger.go
  * $Id$
  */
@@ -17,8 +17,6 @@ var Log *zap.Logger
 //goland:noinspection GoUnhandledErrorResult
 func init() {
 	Log = zap.NewExample()
-	defer func() {
-		//nolint:multichecker,errcheck
-		_ = Log.Sync()
-	}()
+	//nolint:multichecker,errcheck
+	defer func() { _ = Log.Sync() }()
 }

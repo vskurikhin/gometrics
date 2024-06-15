@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * updates_json_handler.go
  * $Id$
  */
@@ -8,32 +8,34 @@ package handlers
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/mailru/easyjson"
-	"go.uber.org/zap"
-
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/util"
+	"go.uber.org/zap"
+	"net/http"
 )
 
-func UpdatesJSONHandler(response http.ResponseWriter, request *http.Request) {
-	if store == nil {
-		store = server.Storage()
-	}
-	compress.ZHandleWrapper(response, request, plainUpdatesJSONHandler)
+type Article struct {
 }
 
-func plainUpdatesJSONHandler(response http.ResponseWriter, request *http.Request) {
-	response.WriteHeader(updatesJSONHandler(response, request))
+func (a *Article) Render(w http.ResponseWriter, r *http.Request) error {
+	_, _ = w.Write([]byte(""))
+	return nil
+}
+
+func UpdatesJSONHandler(response http.ResponseWriter, request *http.Request) {
+	response.WriteHeader(compress.ZHandleWrapper(response, request, plainUpdatesJSONHandler))
+}
+
+func plainUpdatesJSONHandler(response http.ResponseWriter, request *http.Request) int {
+	return updatesJSONHandler(response, request)
 }
 
 func updatesJSONHandler(response http.ResponseWriter, request *http.Request) (status int) {
-
-	response.Header().Set("Content-Type", "application/json")
 
 	defer func() {
 		if p := recover(); p != nil {
@@ -62,6 +64,7 @@ func updatesJSON(response http.ResponseWriter, request *http.Request) (int, erro
 		zapFields := util.ZapFieldsMetric(&metric)
 		logger.Log.Debug("got incoming HTTP request with JSON in updatesJSON", zapFields.Slice()...)
 	}
+	store = server.Storage(env.GetServerConfig())
 	store.PutSlice(metrics)
 
 	if _, err := easyjson.MarshalToWriter(metrics, response); err != nil {

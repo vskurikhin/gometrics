@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-16 16:09 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -7,7 +7,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/go-chi/render"
+	"github.com/vskurikhin/gometrics/internal/util"
 	"net/http"
 	_ "net/http/pprof" // подключаем пакет pprof
 
@@ -28,20 +31,24 @@ var (
 
 func main() {
 
-	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
+	ctx := context.Background()
+	fmt.Printf(
+		"Build version: %s\nBuild date: %s\nBuild commit: %s\n",
+		buildVersion, buildDate, buildCommit,
+	)
+	cfg := env.GetServerConfig()
+	fmt.Print(cfg)
 
-	env.InitServer()
-	server.DBInit()
-	server.Storage()
-	server.Read()
+	server.DBInit(cfg)
+	server.Storage(cfg)
+	server.Read(cfg)
 
-	router := initRouter()
-
-	go server.Save()
-	err := http.ListenAndServe(env.Server.ServerAddress(), router)
-	if err != nil {
-		panic(err)
-	}
+	go func() {
+		router := initRouter()
+		err := http.ListenAndServe(cfg.ServerAddress(), router)
+		util.IfErrorThenPanic(err)
+	}()
+	server.Save(ctx, cfg)
 }
 
 func initRouter() *chi.Mux {
@@ -56,14 +63,19 @@ func initRouter() *chi.Mux {
 	router.Group(func(r chi.Router) {
 		r.Post(env.UpdateChi, handlers.UpdateHandler)
 		r.Get(env.ValueChi, handlers.ValueHandler)
-		r.Post(env.UpdatesURL, handlers.UpdatesJSONHandler)
 	})
 
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.Compress(9))
+		r.Use(render.SetContentType(render.ContentTypeJSON))
 		r.Get("/", handlers.RootHandler)
 		r.Post(env.UpdateURL, handlers.UpdateJSONHandler)
 		r.Post(env.ValueURL, handlers.ValueJSONHandler)
+	})
+
+	router.Group(func(r chi.Router) {
+		r.Use(render.SetContentType(render.ContentTypeJSON))
+		r.Post(env.UpdatesURL, handlers.UpdatesJSONHandler)
 	})
 
 	return router

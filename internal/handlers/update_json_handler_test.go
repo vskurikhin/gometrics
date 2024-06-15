@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 11:06 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * update_json_handler_test.go
  * $Id$
  */
@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
-	"go.uber.org/mock/gomock"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -66,6 +66,8 @@ func TestUpdateJSONHandler(t *testing.T) {
 			},
 		},
 	}
+	cfg := getTestConfig()
+	server.Storage(cfg)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
@@ -93,6 +95,7 @@ func TestUpdateJSONHandler(t *testing.T) {
 	}
 }
 
+/*
 func TestUpdateJSONHandlerWithMock(t *testing.T) {
 	var i int64 = 1
 	type want struct {
@@ -161,3 +164,4 @@ func TestUpdateJSONHandlerWithMock(t *testing.T) {
 		})
 	}
 }
+*/

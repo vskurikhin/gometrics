@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-04-03 08:47 by Victor N. Skurikhin.
- * api_name.go
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * consts.go
  * $Id$
  */
 
