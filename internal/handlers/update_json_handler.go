@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/vskurikhin/gometrics/internal/dto"
+	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/logger"
 	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
@@ -32,9 +33,6 @@ import (
 //	    Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 //	}
 func UpdateJSONHandler(response http.ResponseWriter, request *http.Request) {
-	if store == nil {
-		store = server.Storage()
-	}
 	response.WriteHeader(updateJSONHandler(response, request))
 }
 
@@ -85,6 +83,8 @@ func updateMetric(metric *dto.Metric) {
 	} else {
 		name = metric.ID
 	}
+	store = server.Storage(env.GetServerConfig())
+
 	switch {
 	case types.GAUGE.Eq(metric.MType):
 		value := fmt.Sprintf("%.12f", *metric.Value)

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -26,11 +26,14 @@ var (
 
 func main() {
 
-	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
-
-	env.InitAgent()
+	fmt.Printf(
+		"Build version: %s\nBuild date: %s\nBuild commit: %s\n",
+		buildVersion, buildDate, buildCommit,
+	)
+	cfg := env.GetAgentConfig()
+	fmt.Print(cfg)
 	agent.Storage()
 
-	go agent.Poll(enabled)
-	agent.Reports(enabled)
+	go agent.Poll(cfg, enabled)
+	agent.Reports(cfg, enabled)
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * z_handle_wrapper_test.go
  * $Id$
  */
@@ -22,6 +22,7 @@ func TestZHandleWrapper(t *testing.T) {
 	ctx := chi.NewRouteContext()
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
 
-	ZHandleWrapper(w, r, func(writer http.ResponseWriter, request *http.Request) {
+	ZHandleWrapper(w, r, func(writer http.ResponseWriter, request *http.Request) int {
+		return http.StatusOK
 	})
 }

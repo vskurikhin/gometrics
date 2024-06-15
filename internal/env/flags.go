@@ -1,0 +1,146 @@
+/*
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * flags.go
+ * $Id$
+ */
+
+package env
+
+import (
+	"github.com/spf13/pflag"
+	"sync"
+	"time"
+)
+
+type flags struct {
+	serverAddress   *string
+	storeInterval   *time.Duration
+	fileStoragePath *string
+	restore         *bool
+	dataBaseDSN     *string
+	urlHost         *string
+	reportInterval  *time.Duration
+	pollInterval    *time.Duration
+	key             *string
+	cryptoKey       *string
+}
+
+var onceFlags = new(sync.Once)
+var flag *flags
+
+func initAgentFlags() {
+
+	onceFlags.Do(func() {
+
+		flag = new(flags)
+		if !pflag.Parsed() {
+			poll := pflag.IntP(
+				"poll-interval",
+				"p",
+				1,
+				"help message for poll interval",
+			)
+			report := pflag.IntP(
+				"report-interval",
+				"r",
+				2,
+				"help message for report interval",
+			)
+			initCryptoAgentFlag()
+			initServerAddressFlag()
+			initKeyFlag()
+			pflag.Parse()
+
+			pollInterval := time.Duration(*poll)
+			flag.pollInterval = &pollInterval
+
+			reportInterval := time.Duration(*report)
+			flag.reportInterval = &reportInterval
+		} else {
+			pollInterval := 2 * time.Minute
+			flag.pollInterval = &pollInterval
+
+			reportInterval := 10 * time.Minute
+			flag.reportInterval = &reportInterval
+		}
+	})
+}
+
+func initCryptoAgentFlag() {
+	flag.cryptoKey = pflag.StringP(
+		"crypto-key",
+		"c",
+		"d2d086f42b3e2d705d560d0fe6f0e9cb6524ed97cdc173197b338cacd5259b95fef35b42a799c0b278c31d30ce618c940e4777310a14e8ee6b28498be01f41542333a3b8a24fde0ef96a02aa467d9d475e0c5a83c70c83a797c869eb002416fd74437496b57a853c60563457f3a041f684242bf49d4b2ba420aab3eb9d6d02790f1556afdf18db87335021d16a72652e6104fc32fbd60f301f51c15787508ae2af46500ab4d7fc69121c3e103e469c2993b08c03437710feef18146d3d2d122d18fc2af7daa953ae88c2d75d5692cd7dc792cf7e906e9edc740d2a529d6542d45d0bf7131baa6c58b24c0f8717e034212e0ac0d77c5f62bec92ed5d3c292ec0dac2ca49724390ef63c98e207d13c33bd0a1cb3e2b4e1fada3718e936959c09814bc97c544fa8f7aa66e7a0f999884b4896158b639f07ba3b1f405c055fad65719675813fc6a5fa5cd1e0466fcfdc09baf027c4e633bf7ee82f25fa760618aa6f2629345da1682da546e90e9642aad1fc9a030757904e647a524fb1663776dbe321db8b1201676f45727464997186201d490a83b59bf0d461cf24e5a27d52b8aa93fbb120c702ff3a0bf53011023d0f8bc93a5dd5b15873a31ed46abaee468addbba523565086588fdf89541f2a4b65aa7ee2eeabbd24696ed124c666b5cbe3fbcf3f0c726ff0325aecb3d55b342e03b4c15ce7c58400317dc39e79e1968705e603f7f632127193a63ce39d0417c1201ea4698b9ff82cd2ac602f86107b32680b2fa638665089d286e4bafca0fb8d4e4eb06945e08373d503994ead1945119dcc03d7f234c8ae0a0dc5bb171cb3a5825b19669539db8c26e0acd43587ce82b58c13c0aa51d003065713b9ed70618fd5fd2cead0ebd1faf33e9e7ea4d9312cf91b9a55a7800203993779e8749c27bc523fec69745e7b0e591d63b6a0ea529bae6a99278cb31d91f80f1ea23145cf36ed80297136966fc650a710a1378b26c81e2a24fbe50cfa1c05bf19d4c88c2b16f9f3d6a7b3139de4bda921e1c4a0c7f625a98627fc2411d25035837f7d6d33e6f015ffc3ac7f5b8e9b483f4955008cf7de5e1aa1979a8820815797934c903e02b13871c0a856a13e47df1218b3f51b3ac03e1142c14d654d423aa8ffc57628662b19e388f7a14e4263c582991ec3a0a3de22a368a03b9312e646b956c87231f923e84a90be088a05903b5344fba46cd0b8eb2a1a10634b351531f8975073a9422d7d2e2f4e727605974d0e3f65c1678f832c71a35e8a46c6b35fa8cc93f94a512d29499ba4f4a81d4a83a36d651a64b043fff5e9e21fd8aff834027dbc54e38b77bd68b68e683e5bfc0352a5be37a3c6ee68b0cac8892021d4c79e5bdc5971fa67f580fed2845f4e551d02aad41201bb7d3855ce71a80dd541aa6d6c2d5c4b6f7f4fc565b43ed86630920b24027cc4168cf5",
+		"help message for crypto key",
+	)
+}
+
+func initCryptoServerFlag() {
+	flag.cryptoKey = pflag.StringP(
+		"crypto-key",
+		"c",
+		"d2d086f42b3e2d705d560d0fe6f0e9cb6524ed97cdc173197b338cacd5259b95fef35b42a799c0b278c31d30ce618c940e4777310a14e8ee6b28498be01f41542333a3b8a24fde0ef96a02aa467d9d475e0c5a83c70c83a797c869eb002416fd74437496b57a853c60563457f3a041f684242bf49d4b2ba420aab3eb9d6d02790f1556afdf18db87335021d16a72652e6104fc32fbd60f301f51c15787508ae2af46500ab4d7fc69121c3e103e469c2993b08c03437710feef18146d3d2d122d18fc2af7daa953ae88c2d75d5692cd7dc792cf7e906e9edc740d2a529d6542d45d0bf7131baa6c58b24c0f8717e034212e0ac0d77c5f62bec92ed5d3c292ec0dac2ca49724390ef63c98e207d13c33bd0a1cb3e2b4e1fada3718e936959c09814bc97c544fa8f7aa66e7a0f999884b4896158b639f07ba3b1f405c055fad65719675813fc6a5fa5cd1e0466fcfdc09baf027c4e633bf7ee82f25fa760618aa6f2629345da1682da546e90e9642aad1fc9a030757904e647a524fb1663776dbe321db8b1201676f45727464997186201d490a83b59bf0d461cf24e5a27d52b8aa93fbb120c702ff3a0bf53011023d0f8bc93a5dd5b15873a31ed46abaee468addbba523565086588fdf89541f2a4b65aa7ee2eeabbd24696ed124c666b5cbe3fbcf3f0c726ff0325aecb3d55b342e03b4c15ce7c58400317dc39e79e1968705e603f7f632127193a63ce39d0417c1201ea4698b9ff82cd2ac602f86107b32680b2fa638665089d286e4bafca0fb8d4e4eb06945e08373d503994ead1945119dcc03d7f234c8ae0a0dc5bb171cb3a5825b19669539db8c26e0acd43587ce82b58c13c0aa51d003065713b9ed70618fd5fd2cead0ebd1faf33e9e7ea4d9312cf91b9a55a7800203993779e8749c27bc523fec69745e7b0e591d63b6a0ea529bae6a99278cb31d91f80f1ea23145cf36ed80297136966fc650a710a1378b26c81e2a24fbe50cfa1c05bf19d4c88c2b16f9f3d6a7b3139de4bda921e1c4a0c7f625a98627fc2411d25035837f7d6d33e6f015ffc3ac7f5b8e9b483f4955008cf7de5e1aa1979a8820815797934c903e02b13871c0a856a13e47df1218b3f51b3ac03e1142c14d654d423aa8ffc57628662b19e388f7a14e4263c582991ec3a0a3de22a368a03b9312e646b956c87231f923e84a90be088a05903b5344fba46cd0b8eb2a1a10634b351531f8975073a9422d7d2e2f4e727605974d0e3f65c1678f832c71a35e8a46c6b35fa8cc93f94a512d29499ba4f4a81d4a83a36d651a64b043fff5e9e21fd8aff834027dbc54e38b77bd68b68e683e5bfc0352a5be37a3c6ee68b0cac8892021d4c79e5bdc5971fa67f580fed2845f4e551d02aad41201bb7d3855ce71a80dd541aa6d6c2d5c4b6f7f4fc565b43ed86630920b24027cc4168cf5-"+
+			"ba47d4d830d5d264f5b4b1fa19414bf5943c5b4dc65c680e5e1520fb1fa509a433126ad3ad31695acae6ee0650775637059f14ad5a913b7a6169ca033559a8ea65e89d84eab7d42a3b2df788ea9cd8bb5559692a045b0482b4d63cf190c0532846f1cc35d7ca99acce1b9e491157ccb1bdf6107927fc6265b70fdfc814e55c480891fc758f977174385d5864a9c0c7b381bb5bf6d91d3f72705a5793b657ef417b4b9032c5b60cadf378cd46a120d7a0cd86355234ed233181a82f748f9821f5839c5f837fce1bc99fc33b7698a743b91efe9526eb0d3486ec6d2db6aea9e9b1a93e8766750dd48b53916e2f1b63dbec6db8c6ca22764ed4f304d5a136cf8892544f6668bf7343cb45a47a261a372e289ea4da373b4a6bd522d67a4ce74a6803be2a1e188a036e453e84f2735bbd59789c561143482515e4642b04a522f41f2d8d9beb47a58ac87df85e4b1f45f6d30a426781cf406eb7ff069a728493c27be7973ad5b0de8d25b863be504b6a417327d817510788d61c671210a55b032b9e0547c7ad4d8dbc0e50b9602bfc8299d80ac89de7e034194c31d94e6b3377b5fec38bdbdd9a6f0030f2e3da164d11434f575fca995bd847a676bf2947de41ea478ec2de9b290c228a63274d3bee05fb75ac804e9a435af0afd1623132b7537104d55f3e010ba5ea0334e0efcf59b5f3eb066fce5e66e3cb1ff05748d3be08baeaf3c7ca0a3e7125892bcfdf98d3a5befb946d2a86b631907f26cdc90542b49933adcafa37629f7e33429ce4224fb5e73ab5d7835a34f559524b1f4fe83cad4e285a027a2088fef9e3bddc4d70d2e18d7f6e725825c045909fc4414fc056fa79a9a8b746b3303ae366f566cb9d53e6d495b37e1a695a4fad0952d660346e6e35c89df67eda712ca46cc7dbc8b50b6eedd14f89adf90737cd2b4d01355639764696622c1b7d83aa9757f2064a9d7415f78eb30a1d195b5e5db7d8ccaf3753555321775f1a07df5def0840817710ca0de533501421a472b13238f1f7d7c09f4b42074e7169a47e0bc2bcd2da6f6825645a42366ac67740fa8467fe403721a4f78b12952681fc9e938f375bfbb58346bcf3ef9a602a0e1fcfa5aee473e12a86aad8d2c4964fb2f957ac19c6e4e8a9ac50f54383f13a426d483def54b6b0924e2ae26e7cbbc7f9f446c197ffbe03975001bf313fd65c3935741de4244baa8f43a57252c736d1ca3e1b2c281559053425ce31eb89d5687cb6ee88673685a289faf350610f3df4eb0fda1e570a755589e22ac5971bca67fdf576854e5876b57c04c577d25d604a9cb7df02f78f8be61965ef653c20db726fca5375840c3f239198720930d034b74380a7fc7754470eb0fcc50a49f50503ef7b9febb4b0004011ab9d219b724c9a733cf5446bad50ed697f08af4731df529890b7ab4a25d1859c698d0af949",
+		"help message for crypto key",
+	)
+}
+
+func initKeyFlag() {
+	flag.key = pflag.StringP(
+		"key",
+		"k",
+		"",
+		"help message for key",
+	)
+}
+
+func initServerAddressFlag() {
+	flag.serverAddress = pflag.StringP(
+		"address",
+		"a",
+		"localhost:8080",
+		"help message for host and port",
+	)
+}
+
+func initServerFlags() {
+
+	onceFlags.Do(func() {
+
+		flag = new(flags)
+
+		if !pflag.Parsed() {
+			sInterval := pflag.IntP(
+				"store-interval",
+				"i",
+				300,
+				"help message for store interval",
+			)
+			flag.fileStoragePath = pflag.StringP(
+				"file-storage-path",
+				"f",
+				"/tmp/metrics-db.json",
+				"help message for file storage path",
+			)
+			flag.restore = pflag.BoolP(
+				"restore",
+				"r",
+				true,
+				"help message for restore trigger",
+			)
+			flag.dataBaseDSN = pflag.StringP(
+				"database-dsn",
+				"d",
+				"postgres://postgres:postgres@localhost:5432/praktikum?sslmode=disable",
+				"help message for file database DSN",
+			)
+			initCryptoServerFlag()
+			initServerAddressFlag()
+			initKeyFlag()
+			pflag.Parse()
+
+			storeInterval := time.Duration(*sInterval)
+			flag.storeInterval = &storeInterval
+		}
+	})
+}

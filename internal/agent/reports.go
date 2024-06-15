@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/crypto"
 	"io"
 	"net/http"
 	"strconv"
@@ -24,17 +25,17 @@ import (
 	"github.com/vskurikhin/gometrics/internal/types"
 )
 
-func Reports(enabled []types.Name) {
+func Reports(cfg env.Config, enabled []types.Name) {
 
 	client := http.Client{}
 	for {
-		reports(enabled, &client)
+		reports(cfg, enabled, &client)
 	}
 }
 
-func reports(enabled []types.Name, client *http.Client) {
+func reports(cfg env.Config, enabled []types.Name, client *http.Client) {
 
-	time.Sleep(env.Agent.ReportInterval() * time.Second)
+	time.Sleep(cfg.ReportInterval() * time.Second)
 
 	metrics := make(dto.Metrics, 0)
 
@@ -44,7 +45,7 @@ func reports(enabled []types.Name, client *http.Client) {
 			metrics = append(metrics, *metric)
 		}
 	}
-	request, err := newRequest(metrics)
+	request, err := NewRequest(cfg, metrics)
 
 	if err != nil {
 		panic(err)
@@ -105,27 +106,40 @@ func getMetric(n types.Name) *dto.Metric {
 }
 
 //goland:noinspection GoUnhandledErrorResult
-func newRequest(metrics dto.Metrics) (*http.Request, error) {
+func NewRequest(cfg env.Config, metrics dto.Metrics) (*http.Request, error) {
 
-	var b1, b2 bytes.Buffer
+	marshaledBuffer := &bytes.Buffer{}
 
-	if _, err := easyjson.MarshalToWriter(metrics, &b1); err != nil {
+	if _, err := easyjson.MarshalToWriter(metrics, marshaledBuffer); err != nil {
 		return nil, err
 	}
-	gz, err := gzip.NewWriterLevel(&b2, gzip.BestSpeed)
+
+	compressBuffer := &bytes.Buffer{}
+
+	gz, err := gzip.NewWriterLevel(compressBuffer, gzip.BestCompression)
 
 	if err != nil {
 		//nolint:multichecker,errcheck
-		_, _ = io.WriteString(&b1, err.Error())
+		_, _ = io.WriteString(marshaledBuffer, err.Error())
 		return nil, err
 	}
 	//nolint:multichecker,errcheck
-	_, _ = gz.Write(b1.Bytes())
+	_, _ = gz.Write(marshaledBuffer.Bytes())
 	//nolint:multichecker,errcheck
 	_ = gz.Close()
+	crypt := crypto.GetAgentCrypto(cfg)
+	buffer := &bytes.Buffer{}
 
-	path := *env.Agent.URLHost() + env.UpdatesURL
-	request, err := http.NewRequest(http.MethodPost, path, &b2)
+	// TODO переработать поблочную обработку
+	if buf, err := crypt.EncryptRSA(compressBuffer.Bytes()); err != nil {
+		logger.Log.Debug("encrypt fail", zap.String("error", fmt.Sprintf("%v", err)))
+		buffer = bytes.NewBuffer(compressBuffer.Bytes())
+	} else {
+		buffer = bytes.NewBuffer(buf)
+	}
+
+	path := *cfg.URLHost() + env.UpdatesURL
+	request, err := http.NewRequest(http.MethodPost, path, buffer)
 
 	if err != nil {
 		return nil, err
@@ -140,6 +154,9 @@ func postDo(client *http.Client, request *http.Request) error {
 	response, err := client.Do(request)
 
 	defer func() {
+		if err != nil {
+			logger.Log.Debug("post fail", zap.String("error", fmt.Sprintf("%v", err)))
+		}
 		if response != nil {
 			//nolint:multichecker,errcheck
 			_ = response.Body.Close()

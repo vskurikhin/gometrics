@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
  * poll_test.go
  * $Id$
  */
@@ -7,6 +7,7 @@
 package agent
 
 import (
+	"github.com/vskurikhin/gometrics/internal/env"
 	"runtime"
 	"testing"
 
@@ -31,9 +32,10 @@ func TestPoll(t *testing.T) {
 		{name: "positive test #3", input: []types.Name{types.PollCount}, want: "PollCount"},
 		{name: "positive test #4", input: []types.Name{types.RandomValue}, want: "RandomValue"},
 	}
+	cfg := env.GetAgentConfig()
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			poll(test.input, memStats)
+			poll(cfg, test.input, memStats)
 			got := memStorage.Get(test.want)
 			assert.NotNil(t, got)
 		})

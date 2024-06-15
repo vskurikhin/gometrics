@@ -5,6 +5,7 @@ go 1.21.1
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/render v1.0.3
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/kisielk/errcheck v1.7.0
 	github.com/mailru/easyjson v0.7.7
@@ -13,13 +14,13 @@ require (
 	github.com/vskurikhin/gotool v0.0.0-20240105082849-398ef8bedcbd
 	go.uber.org/mock v0.4.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	golang.org/x/tools v0.22.0
 	honnef.co/go/tools v0.4.7
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
