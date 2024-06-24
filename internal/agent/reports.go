@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-25 00:36 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -32,6 +32,8 @@ func Reports(ctx context.Context, cfg env.Config, enabled []types.Name) {
 	for {
 		select {
 		case <-ctx.Done():
+			reports(cfg, enabled, &client)
+			return
 		default:
 			go reports(cfg, enabled, &client)
 			time.Sleep(cfg.ReportInterval())
@@ -145,5 +147,6 @@ func postDo(client *http.Client, request *http.Request) error {
 }
 
 func isUpperBound(index int, duration time.Duration) bool {
-	return (index*(index+1)*(2*index+1))/6 < int(duration)
+	result := time.Duration((index*(index+1)*(2*index+1))/6) * time.Second
+	return result < duration
 }

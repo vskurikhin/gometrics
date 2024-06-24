@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-25 00:17 by Victor N. Skurikhin.
  * poll.go
  * $Id$
  */
@@ -26,6 +26,8 @@ func Poll(ctx context.Context, cfg env.Config, enabled []types.Name) {
 	for {
 		select {
 		case <-ctx.Done():
+			poll(enabled, memStats)
+			return
 		default:
 			go poll(enabled, memStats)
 			time.Sleep(cfg.PollInterval())

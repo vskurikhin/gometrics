@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 23:55 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -12,6 +12,8 @@ import (
 	"github.com/vskurikhin/gometrics/internal/agent"
 	"github.com/vskurikhin/gometrics/internal/env"
 	t "github.com/vskurikhin/gometrics/internal/types"
+	"os/signal"
+	"syscall"
 )
 
 var (
@@ -26,7 +28,9 @@ var (
 )
 
 func main() {
-	run(context.Background())
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+	defer stop()
+	run(ctx)
 }
 
 func run(ctx context.Context) {

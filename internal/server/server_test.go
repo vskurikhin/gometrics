@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-16 14:35 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 23:25 by Victor N. Skurikhin.
  * server_test.go
  * $Id$
  */
@@ -39,7 +39,7 @@ func TestDBInit(t *testing.T) {
 //	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 //	defer cancel()
 //	Storage(cfg)
-//	Save(ctx, cfg)
+//	SaveLoop(ctx, cfg)
 //	Read(cfg)
 //}
 
