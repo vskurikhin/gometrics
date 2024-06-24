@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
  * environments.go
  * $Id$
  */
@@ -16,6 +16,8 @@ import (
 
 type environments struct {
 	Address         []string `env:"ADDRESS" envSeparator:":"`
+	Config          string   `env:"CONFIG"`
+	CryptoKey       []string `env:"CRYPTO_KEY" envSeparator:"-"`
 	ReportInterval  int      `env:"REPORT_INTERVAL"`
 	PollInterval    int      `env:"POLL_INTERVAL"`
 	StoreInterval   string   `env:"STORE_INTERVAL"`

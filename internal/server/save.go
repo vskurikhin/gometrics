@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-16 16:15 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
  * save.go
  * $Id$
  */
@@ -17,11 +17,9 @@ func Save(ctx context.Context, cfg env.Config) {
 		select {
 		case <-ctx.Done():
 		default:
-			{
-				time.Sleep(cfg.StoreInterval())
-				if cfg.Restore() && cfg.FileStoragePath() != "" {
-					store.SaveToFile(cfg.FileStoragePath())
-				}
+			time.Sleep(cfg.StoreInterval())
+			if cfg.Restore() && cfg.FileStoragePath() != "" {
+				store.SaveToFile(cfg.FileStoragePath())
 			}
 		}
 	}

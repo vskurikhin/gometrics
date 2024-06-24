@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-16 14:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
  * config.go
  * $Id$
  */
@@ -10,14 +10,26 @@ package env
 import (
 	"fmt"
 	"github.com/vskurikhin/gometrics/internal/util"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 )
 
+const (
+	Address         = "address"
+	ConfigFileName  = "config"
+	CryptoKey       = "crypto-key"
+	DatabaseDSN     = "database-dsn"
+	FileStoragePath = "file-storage-path"
+	Key             = "key"
+	PollInterval    = "poll-interval"
+	ReportInterval  = "report-interval"
+	Restore         = "restore"
+	StoreInterval   = "store-interval"
+)
+
 type Config interface {
 	fmt.Stringer
+	ConfigFileName() string
 	CryptoKey() []string
 	DataBaseDSN() string
 	FileStoragePath() string
@@ -32,6 +44,7 @@ type Config interface {
 }
 
 type config struct {
+	configFileName  string
 	cryptoKey       []string
 	dataBaseDSN     *string
 	fileStoragePath string
@@ -53,6 +66,7 @@ func GetAgentConfig() Config {
 		cfg = new(config)
 		getEnvironments()
 		initAgentFlags()
+		getAgentConfig()
 		initAgentConfig()
 	})
 	return cfg
@@ -64,6 +78,7 @@ func GetServerConfig() Config {
 		cfg = new(config)
 		getEnvironments()
 		initServerFlags()
+		getServerConfig()
 		initServerConfig()
 	})
 	return cfg
@@ -72,6 +87,18 @@ func GetServerConfig() Config {
 // GetTestConfig — для создания тестовой конфигурации.
 func GetTestConfig(opts ...func(*config)) Config {
 	return getConfig(opts...)
+}
+
+// WithConfigFileName — конфигурации сервера и агента с помощью файла в формате JSON.
+func WithConfigFileName(configFileName string) func(*config) {
+	return func(c *config) {
+		c.configFileName = configFileName
+	}
+}
+
+// ConfigFileName — конфигурации сервера и агента с помощью файла в формате JSON.
+func (c *config) ConfigFileName() string {
+	return c.configFileName
 }
 
 // WithCryptoKey — поддержка асимметричного шифрования.
@@ -239,80 +266,4 @@ func getConfig(opts ...func(*config)) *config {
 		opt(cfg)
 	}
 	return cfg
-}
-
-func initAgentConfig() {
-
-	initAgentCryptoKey()
-	initServerAddress()
-	if env.ReportInterval < 1 {
-		cfg.reportInterval = *flag.reportInterval
-	} else {
-		cfg.reportInterval = time.Duration(env.ReportInterval) * time.Second
-	}
-	if env.PollInterval < 1 {
-		cfg.pollInterval = *flag.pollInterval
-	} else {
-		cfg.pollInterval = time.Duration(env.PollInterval) * time.Second
-	}
-	initKey()
-}
-
-func initServerConfig() {
-
-	initServerAddress()
-	initServerCryptoKey()
-	if env.DataBaseDSN == "" {
-		cfg.dataBaseDSN = flag.dataBaseDSN
-	} else {
-		cfg.dataBaseDSN = &env.DataBaseDSN
-	}
-	if env.StoreInterval == "" {
-		cfg.storeInterval = *flag.storeInterval
-	} else {
-		storeInterval, err := strconv.Atoi(env.StoreInterval)
-		if err == nil {
-			cfg.storeInterval = time.Duration(storeInterval) * time.Second
-		} else {
-			cfg.storeInterval = 300 * time.Second
-		}
-	}
-	if env.FileStoragePath == "" {
-		cfg.fileStoragePath = *flag.fileStoragePath
-	} else {
-		cfg.fileStoragePath = env.FileStoragePath
-	}
-	if env.Restore == "" {
-		cfg.restore = *flag.restore
-	} else {
-		restore, err := strconv.ParseBool(env.Restore)
-		if err == nil {
-			cfg.restore = restore
-		}
-	}
-	initKey()
-}
-
-func initKey() {
-	if env.Key == "" {
-		cfg.key = flag.key
-	} else {
-		cfg.key = &env.Key
-	}
-}
-
-func initAgentCryptoKey() {
-	cfg.cryptoKey = []string{*flag.cryptoKey, "010001"}
-}
-
-func initServerCryptoKey() {
-	cfg.cryptoKey = strings.Split(*flag.cryptoKey, "-")
-}
-
-func initServerAddress() {
-	if len(env.Address) < 2 {
-		cfg.serverAddress = *flag.serverAddress
-	} else {
-		cfg.serverAddress = env.parseEnvAddress()
-	}
 }

@@ -1,9 +1,10 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 22:55 by Victor N. Skurikhin.
  * crypt.go
  * $Id$
  */
 
+// Package crypto поддержка асимметричного шифрования.
 package crypto
 
 import (

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-16 16:16 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
  * poll.go
  * $Id$
  */
@@ -8,6 +8,7 @@
 package agent
 
 import (
+	"context"
 	"fmt"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/types"
@@ -19,15 +20,20 @@ import (
 
 var count = atomic.Uint64{}
 
-func Poll(cfg env.Config, enabled []types.Name) {
+func Poll(ctx context.Context, cfg env.Config, enabled []types.Name) {
 
 	memStats := new(runtime.MemStats)
 	for {
-		poll(cfg, enabled, memStats)
+		select {
+		case <-ctx.Done():
+		default:
+			go poll(enabled, memStats)
+			time.Sleep(cfg.PollInterval())
+		}
 	}
 }
 
-func poll(cfg env.Config, enabled []types.Name, memStats *runtime.MemStats) {
+func poll(enabled []types.Name, memStats *runtime.MemStats) {
 
 	runtime.ReadMemStats(memStats)
 
@@ -35,7 +41,6 @@ func poll(cfg env.Config, enabled []types.Name, memStats *runtime.MemStats) {
 		putSample(i, memStats)
 		putCustom(i)
 	}
-	time.Sleep(cfg.PollInterval())
 }
 
 func putSample(n types.Name, memStats *runtime.MemStats) {

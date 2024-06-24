@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-16 16:16 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -9,8 +9,9 @@ package agent
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/crypto"
+	"github.com/vskurikhin/gometrics/internal/util"
 	"io"
 	"net/http"
 	"strconv"
@@ -25,11 +26,16 @@ import (
 	"github.com/vskurikhin/gometrics/internal/types"
 )
 
-func Reports(cfg env.Config, enabled []types.Name) {
+func Reports(ctx context.Context, cfg env.Config, enabled []types.Name) {
 
 	client := http.Client{}
 	for {
-		reports(cfg, enabled, &client)
+		select {
+		case <-ctx.Done():
+		default:
+			go reports(cfg, enabled, &client)
+			time.Sleep(cfg.ReportInterval())
+		}
 	}
 }
 
@@ -43,23 +49,18 @@ func reports(cfg env.Config, enabled []types.Name, client *http.Client) {
 			metrics = append(metrics, *metric)
 		}
 	}
-	request, err := NewRequest(cfg, metrics)
-
-	if err != nil {
-		panic(err)
-	}
-
+	request, err := newRequest(cfg, metrics)
+	util.IfErrorThenPanic(err)
 	err = postDo(client, request)
 
-	for i := 1; err != nil && i < 6; i += 2 {
-		time.Sleep(time.Duration(i) * time.Second)
+	for i := 0; err != nil && isUpperBound(i, cfg.ReportInterval()); i++ {
+		time.Sleep(time.Duration(1<<i) * time.Second)
 		logger.Log.Debug("retry post",
 			zap.String("error", fmt.Sprintf("%v", err)),
 			zap.String("time", fmt.Sprintf("%v", time.Now())),
 		)
 		err = postDo(client, request)
 	}
-	time.Sleep(cfg.ReportInterval())
 }
 
 func getMetric(n types.Name) *dto.Metric {
@@ -87,58 +88,40 @@ func getMetric(n types.Name) *dto.Metric {
 		switch n.GetMetric().MetricType() {
 		case types.COUNTER:
 			i64, err := strconv.ParseInt(*value, 10, 64)
-			if err != nil {
-				panic(err)
-			}
+			util.IfErrorThenPanic(err)
 			metric.Delta = &i64
 		case types.GAUGE:
 			f64, err := strconv.ParseFloat(*value, 64)
-			if err != nil {
-				panic(err)
-			}
+			util.IfErrorThenPanic(err)
 			metric.Value = &f64
 		}
-
 		return &metric
 	}
 	return nil
 }
 
 //goland:noinspection GoUnhandledErrorResult
-func NewRequest(cfg env.Config, metrics dto.Metrics) (*http.Request, error) {
+func newRequest(cfg env.Config, metrics dto.Metrics) (*http.Request, error) {
 
-	marshaledBuffer := &bytes.Buffer{}
+	var b1, b2 bytes.Buffer
 
-	if _, err := easyjson.MarshalToWriter(metrics, marshaledBuffer); err != nil {
+	if _, err := easyjson.MarshalToWriter(metrics, &b1); err != nil {
 		return nil, err
 	}
-
-	compressBuffer := &bytes.Buffer{}
-
-	gz, err := gzip.NewWriterLevel(compressBuffer, gzip.BestCompression)
+	gz, err := gzip.NewWriterLevel(&b2, gzip.BestSpeed)
 
 	if err != nil {
 		//nolint:multichecker,errcheck
-		_, _ = io.WriteString(marshaledBuffer, err.Error())
+		_, _ = io.WriteString(&b1, err.Error())
 		return nil, err
 	}
 	//nolint:multichecker,errcheck
-	_, _ = gz.Write(marshaledBuffer.Bytes())
+	_, _ = gz.Write(b1.Bytes())
 	//nolint:multichecker,errcheck
 	_ = gz.Close()
-	crypt := crypto.GetAgentCrypto(cfg)
-	buffer := &bytes.Buffer{}
-	//
-	//// TODO переработать поблочную обработку
-	if buf, err := crypt.EncryptRSA(compressBuffer.Bytes()); err != nil {
-		logger.Log.Debug("encrypt fail", zap.String("error", fmt.Sprintf("%v", err)))
-		buffer = bytes.NewBuffer(compressBuffer.Bytes())
-	} else {
-		buffer = bytes.NewBuffer(buf)
-	}
 
 	path := *cfg.URLHost() + env.UpdatesURL
-	request, err := http.NewRequest(http.MethodPost, path, buffer)
+	request, err := http.NewRequest(http.MethodPost, path, &b2)
 
 	if err != nil {
 		return nil, err
@@ -153,13 +136,14 @@ func postDo(client *http.Client, request *http.Request) error {
 	response, err := client.Do(request)
 
 	defer func() {
-		if err != nil {
-			logger.Log.Debug("post fail", zap.String("error", fmt.Sprintf("%v", err)))
-		}
 		if response != nil {
 			//nolint:multichecker,errcheck
 			_ = response.Body.Close()
 		}
 	}()
 	return err
+}
+
+func isUpperBound(index int, duration time.Duration) bool {
+	return (index*(index+1)*(2*index+1))/6 < int(duration)
 }

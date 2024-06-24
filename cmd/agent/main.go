@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -7,6 +7,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/vskurikhin/gometrics/internal/agent"
 	"github.com/vskurikhin/gometrics/internal/env"
@@ -25,6 +26,10 @@ var (
 )
 
 func main() {
+	run(context.Background())
+}
+
+func run(ctx context.Context) {
 
 	fmt.Printf(
 		"Build version: %s\nBuild date: %s\nBuild commit: %s\n",
@@ -34,6 +39,6 @@ func main() {
 	fmt.Print(cfg)
 	agent.Storage()
 
-	go agent.Poll(cfg, enabled)
-	agent.Reports(cfg, enabled)
+	go agent.Poll(ctx, cfg, enabled)
+	agent.Reports(ctx, cfg, enabled)
 }
