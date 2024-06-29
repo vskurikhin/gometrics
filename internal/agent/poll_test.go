@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
  * poll_test.go
  * $Id$
  */

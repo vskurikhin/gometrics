@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-24 23:55 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -7,10 +7,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/vskurikhin/gometrics/internal/agent"
 	"github.com/vskurikhin/gometrics/internal/env"
 	t "github.com/vskurikhin/gometrics/internal/types"
+	"os/signal"
+	"syscall"
 )
 
 var (
@@ -25,12 +28,21 @@ var (
 )
 
 func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+	defer stop()
+	run(ctx)
+}
 
-	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
+func run(ctx context.Context) {
 
-	env.InitAgent()
+	fmt.Printf(
+		"Build version: %s\nBuild date: %s\nBuild commit: %s\n",
+		buildVersion, buildDate, buildCommit,
+	)
+	cfg := env.GetAgentConfig()
+	fmt.Print(cfg)
 	agent.Storage()
 
-	go agent.Poll(enabled)
-	agent.Reports(enabled)
+	go agent.Poll(ctx, cfg, enabled)
+	agent.Reports(ctx, cfg, enabled)
 }

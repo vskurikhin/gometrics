@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 18:09 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-16 14:07 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -8,6 +8,8 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/server"
 	"net/http"
 	"strconv"
 
@@ -16,7 +18,6 @@ import (
 
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 )
@@ -35,7 +36,6 @@ import (
 //	    Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 //	}
 func ValueJSONHandler(response http.ResponseWriter, request *http.Request) {
-	store = server.Storage()
 	response.WriteHeader(valueJSONHandler(response, request))
 }
 
@@ -73,15 +73,15 @@ func valueJSON(response http.ResponseWriter, request *http.Request) {
 func valueMetric(metric *dto.Metric) {
 
 	var err error
-
-	num := types.Lookup(metric.ID)
 	var name string
+	num := types.Lookup(metric.ID)
 
 	if num > 0 {
 		name = num.String()
 	} else {
 		name = metric.ID
 	}
+	store = server.Storage(env.GetServerConfig())
 
 	switch {
 	case types.GAUGE.Eq(metric.MType):
@@ -89,15 +89,17 @@ func valueMetric(metric *dto.Metric) {
 		metric.Value = new(float64)
 		if value != nil {
 			*metric.Value, err = strconv.ParseFloat(*value, 64)
+		} else {
+			err = fmt.Errorf("value %s of type %s not found", name, metric.MType)
 		}
 	case types.COUNTER.Eq(metric.MType):
 		value := store.GetCounter(name)
 		metric.Delta = new(int64)
 		if value != nil {
 			*metric.Delta, err = strconv.ParseInt(*value, 10, 64)
+		} else {
+			err = fmt.Errorf("value %s of type %s not found", name, metric.MType)
 		}
 	}
-	if err != nil {
-		panic(err)
-	}
+	util.IfErrorThenPanic(err)
 }

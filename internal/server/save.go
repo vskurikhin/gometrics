@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-25 00:02 by Victor N. Skurikhin.
  * save.go
  * $Id$
  */
@@ -7,18 +7,22 @@
 package server
 
 import (
-	"time"
-
+	"context"
 	"github.com/vskurikhin/gometrics/internal/env"
+	"time"
 )
 
-func Save() {
-	for {
-		save()
+func SaveLoop(ctx context.Context, cfg env.Config) {
+	select {
+	case <-ctx.Done():
+	default:
+		time.Sleep(cfg.StoreInterval())
+		Save(cfg)
 	}
 }
 
-func save() {
-	time.Sleep(env.Server.StoreInterval() * time.Second)
-	store.SaveToFile(env.Server.FileStoragePath())
+func Save(cfg env.Config) {
+	if cfg.Restore() && cfg.FileStoragePath() != "" {
+		store.SaveToFile(cfg.FileStoragePath())
+	}
 }

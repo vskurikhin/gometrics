@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-03-18 23:30 by Victor N. Skurikhin.
+ * This file was last modified at 2024-06-16 15:25 by Victor N. Skurikhin.
  * metrics.go
  * $Id$
  */
@@ -45,7 +45,7 @@ var Metrics = [...]metric{
 		return ms.HeapIdle
 	}},
 	{name: "HeapInuse", type_: uint64(0), metricType: GAUGE, funcUint64: func(ms *runtime.MemStats) uint64 {
-		return ms.HeapIdle
+		return ms.HeapInuse
 	}},
 	{name: "HeapObjects", type_: uint64(0), metricType: GAUGE, funcUint64: func(ms *runtime.MemStats) uint64 {
 		return ms.HeapObjects
