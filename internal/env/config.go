@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-02 15:12 by Victor N. Skurikhin.
  * config.go
  * $Id$
  */
@@ -30,7 +30,7 @@ const (
 type Config interface {
 	fmt.Stringer
 	ConfigFileName() string
-	CryptoKey() []string
+	CryptoKey() string
 	DataBaseDSN() string
 	FileStoragePath() string
 	IsDBSetup() bool
@@ -45,7 +45,7 @@ type Config interface {
 
 type config struct {
 	configFileName  string
-	cryptoKey       []string
+	cryptoKey       string
 	dataBaseDSN     *string
 	fileStoragePath string
 	key             *string
@@ -57,6 +57,7 @@ type config struct {
 	urlHost         *string
 }
 
+var _ Config = (*config)(nil)
 var onceCfg = new(sync.Once)
 var cfg *config
 
@@ -102,14 +103,14 @@ func (c *config) ConfigFileName() string {
 }
 
 // WithCryptoKey — поддержка асимметричного шифрования.
-func WithCryptoKey(cryptoKey []string) func(*config) {
+func WithCryptoKey(cryptoKey string) func(*config) {
 	return func(c *config) {
 		c.cryptoKey = cryptoKey
 	}
 }
 
 // CryptoKey — поддержка асимметричного шифрования.
-func (c *config) CryptoKey() []string {
+func (c *config) CryptoKey() string {
 	return c.cryptoKey
 }
 
