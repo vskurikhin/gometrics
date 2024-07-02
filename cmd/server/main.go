@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 23:44 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/render"
+	"github.com/vskurikhin/gometrics/internal/ip"
 	"log"
 	"net/http"
 	_ "net/http/pprof" // подключаем пакет pprof
@@ -106,6 +107,7 @@ func initRouter() *chi.Mux {
 
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.RequestID)
+	router.Use(ip.XRealIPChecker)
 
 	router.Mount("/debug", middleware.Profiler())
 

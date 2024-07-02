@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-03 20:55 by Victor N. Skurikhin.
  * init_config.go
  * $Id$
  */
@@ -9,7 +9,6 @@ package env
 import (
 	"github.com/vskurikhin/gometrics/internal/util"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -94,6 +93,14 @@ func initServerConfig() {
 			cfg.restore = *flag.restore
 		})
 	}
+	if env.TrustedSubnet != "" {
+		cfg.trustedSubnet = env.TrustedSubnet
+	} else {
+		cfg.trustedSubnet = jsonServerConfig.TrustedSubnet
+		setIfFlagChanged(TrustedSubnet, func() {
+			cfg.trustedSubnet = *flag.trustedSubnet
+		})
+	}
 	initKey()
 }
 
@@ -110,10 +117,10 @@ func initAgentCryptoKey() {
 		cfg.cryptoKey = env.CryptoKey
 	} else {
 		setIfFlagChanged(CryptoKey, func() {
-			cfg.cryptoKey = []string{util.Str(flag.cryptoKey), "010001"}
+			cfg.cryptoKey = util.Str(flag.cryptoKey)
 		})
 		if len(cfg.cryptoKey) == 0 {
-			cfg.cryptoKey = strings.Split(jsonAgentConfig.CryptoKey, "-")
+			cfg.cryptoKey = jsonAgentConfig.CryptoKey
 		}
 	}
 }
@@ -123,10 +130,10 @@ func initServerCryptoKey() {
 		cfg.cryptoKey = env.CryptoKey
 	} else {
 		setIfFlagChanged(CryptoKey, func() {
-			cfg.cryptoKey = strings.Split(*flag.cryptoKey, "-")
+			cfg.cryptoKey = *flag.cryptoKey
 		})
 		if len(cfg.cryptoKey) == 0 {
-			cfg.cryptoKey = strings.Split(jsonServerConfig.CryptoKey, "-")
+			cfg.cryptoKey = jsonServerConfig.CryptoKey
 		}
 	}
 }
