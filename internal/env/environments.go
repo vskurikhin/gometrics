@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
  * environments.go
  * $Id$
  */
@@ -17,14 +17,16 @@ import (
 type environments struct {
 	Address         []string `env:"ADDRESS" envSeparator:":"`
 	Config          string   `env:"CONFIG"`
-	CryptoKey       []string `env:"CRYPTO_KEY" envSeparator:"-"`
-	ReportInterval  int      `env:"REPORT_INTERVAL"`
-	PollInterval    int      `env:"POLL_INTERVAL"`
-	StoreInterval   string   `env:"STORE_INTERVAL"`
-	FileStoragePath string   `env:"FILE_STORAGE_PATH"`
-	Restore         string   `env:"RESTORE"`
+	CryptoKey       string   `env:"CRYPTO_KEY" envSeparator:"-"`
 	DataBaseDSN     string   `env:"DATABASE_DSN"`
+	DNS             string   `env:"DNS"`
+	FileStoragePath string   `env:"FILE_STORAGE_PATH"`
 	Key             string   `env:"KEY"`
+	PollInterval    int      `env:"POLL_INTERVAL"`
+	ReportInterval  int      `env:"REPORT_INTERVAL"`
+	Restore         string   `env:"RESTORE"`
+	StoreInterval   string   `env:"STORE_INTERVAL"`
+	TrustedSubnet   string   `env:"TRUSTED_SUBNET"`
 }
 
 var onceEnv = new(sync.Once)
@@ -36,6 +38,9 @@ func getEnvironments() *environments {
 		env = new(environments)
 		err := c0env.Parse(env)
 		util.IfErrorThenPanic(err)
+		if env.DNS == "" {
+			env.DNS = "8.8.8.8:53"
+		}
 	})
 	return env
 }

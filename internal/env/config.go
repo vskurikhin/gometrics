@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
  * config.go
  * $Id$
  */
@@ -25,12 +25,13 @@ const (
 	ReportInterval  = "report-interval"
 	Restore         = "restore"
 	StoreInterval   = "store-interval"
+	TrustedSubnet   = "trusted-subnet"
 )
 
 type Config interface {
 	fmt.Stringer
 	ConfigFileName() string
-	CryptoKey() []string
+	CryptoKey() string
 	DataBaseDSN() string
 	FileStoragePath() string
 	IsDBSetup() bool
@@ -40,12 +41,13 @@ type Config interface {
 	Restore() bool
 	ServerAddress() string
 	StoreInterval() time.Duration
+	TrustedSubnet() string
 	URLHost() *string
 }
 
 type config struct {
 	configFileName  string
-	cryptoKey       []string
+	cryptoKey       string
 	dataBaseDSN     *string
 	fileStoragePath string
 	key             *string
@@ -54,9 +56,11 @@ type config struct {
 	restore         bool
 	serverAddress   string
 	storeInterval   time.Duration
+	trustedSubnet   string
 	urlHost         *string
 }
 
+var _ Config = (*config)(nil)
 var onceCfg = new(sync.Once)
 var cfg *config
 
@@ -68,6 +72,7 @@ func GetAgentConfig() Config {
 		initAgentFlags()
 		getAgentConfig()
 		initAgentConfig()
+		setParameters()
 	})
 	return cfg
 }
@@ -80,6 +85,7 @@ func GetServerConfig() Config {
 		initServerFlags()
 		getServerConfig()
 		initServerConfig()
+		setParameters()
 	})
 	return cfg
 }
@@ -102,14 +108,14 @@ func (c *config) ConfigFileName() string {
 }
 
 // WithCryptoKey — поддержка асимметричного шифрования.
-func WithCryptoKey(cryptoKey []string) func(*config) {
+func WithCryptoKey(cryptoKey string) func(*config) {
 	return func(c *config) {
 		c.cryptoKey = cryptoKey
 	}
 }
 
 // CryptoKey — поддержка асимметричного шифрования.
-func (c *config) CryptoKey() []string {
+func (c *config) CryptoKey() string {
 	return c.cryptoKey
 }
 
@@ -220,6 +226,18 @@ func (c *config) StoreInterval() time.Duration {
 	return c.storeInterval
 }
 
+// WithTrustedSubnet — строковое представление доверенной подсети бесклассовой адресации (CIDR).
+func WithTrustedSubnet(trustedSubnet string) func(*config) {
+	return func(c *config) {
+		c.trustedSubnet = trustedSubnet
+	}
+}
+
+// TrustedSubnet — геттер строковое представление бесклассовой адресации (CIDR).
+func (c *config) TrustedSubnet() string {
+	return c.trustedSubnet
+}
+
 func (c *config) String() string {
 	format := `
 	dataBaseDSN     : %s
@@ -265,5 +283,7 @@ func getConfig(opts ...func(*config)) *config {
 	for _, opt := range opts {
 		opt(cfg)
 	}
+	setParameters()
+
 	return cfg
 }
