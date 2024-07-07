@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-05 15:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -12,11 +12,12 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/crypto"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/vskurikhin/gometrics/internal/crypto"
+	"github.com/vskurikhin/gometrics/internal/util"
 
 	"github.com/mailru/easyjson"
 	"go.uber.org/zap"
@@ -27,18 +28,18 @@ import (
 	"github.com/vskurikhin/gometrics/internal/types"
 )
 
-var parameters env.Parameters
-
 func Reports(ctx context.Context, cfg env.Config, enabled []types.Name) {
 
 	client := http.Client{}
 	time.Sleep(cfg.PollInterval())
+	grpcReports(cfg, enabled)
 	for {
 		select {
 		case <-ctx.Done():
-			reports(cfg, enabled, &client)
+			grpcReports(cfg, enabled)
 			return
 		default:
+			go grpcReports(cfg, enabled)
 			go reports(cfg, enabled, &client)
 			time.Sleep(cfg.ReportInterval())
 		}
@@ -145,7 +146,7 @@ func newRequest(cfg env.Config, metrics dto.Metrics) (*http.Request, error) {
 	key := encryptRSAAndBase64StdEncoding(crypt, secretKey)
 	request.Header.Add("X-Content-Encrypting", key)
 	logger.Log.Debug("post EncryptRSA", zap.String("key", key))
-	ip := parameters.OutboundIP()
+	ip := cfg.Property().OutboundIP()
 	request.Header.Add("X-Real-IP", ip.String())
 
 	return request, nil
@@ -178,8 +179,4 @@ func encryptRSAAndBase64StdEncoding(crypt crypto.Crypto, plain []byte) string {
 func isUpperBound(index int, duration time.Duration) bool {
 	result := time.Duration((index*(index+1)*(2*index+1))/6) * time.Second
 	return result < duration
-}
-
-func init() {
-	parameters = env.GetParameters()
 }

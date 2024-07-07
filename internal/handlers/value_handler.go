@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * value_handler.go
  * $Id$
  */
@@ -8,11 +8,11 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/server"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/vskurikhin/gometrics/internal/env"
 
 	"github.com/go-chi/chi/v5"
 
@@ -37,7 +37,10 @@ func ValueHandler(response http.ResponseWriter, request *http.Request) {
 		if num > 0 {
 			name = num.String()
 		}
-		store = server.Storage(env.GetServerConfig())
+		store = env.
+			GetServerConfig().
+			Property().
+			Storage()
 
 		switch strings.ToLower(typ) {
 		case "counter":

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-16 14:07 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * value_json_handler.go
  * $Id$
  */
@@ -7,18 +7,19 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/server"
 	"net/http"
-	"strconv"
+	"time"
+
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/services"
 
 	"github.com/mailru/easyjson"
 	"go.uber.org/zap"
 
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/types"
 	"github.com/vskurikhin/gometrics/internal/util"
 )
 
@@ -49,12 +50,11 @@ func valueJSONHandler(response http.ResponseWriter, request *http.Request) (stat
 			status = http.StatusNotFound
 		}
 	}()
-	valueJSON(response, request)
 
-	return http.StatusOK
+	return valueJSON(response, request)
 }
 
-func valueJSON(response http.ResponseWriter, request *http.Request) {
+func valueJSON(response http.ResponseWriter, request *http.Request) int {
 
 	metric := dto.Metric{}
 
@@ -63,43 +63,19 @@ func valueJSON(response http.ResponseWriter, request *http.Request) {
 	}
 	zapFields := util.ZapFieldsMetric(&metric)
 	logger.Log.Debug("got incoming HTTP request with JSON in valueJSON", zapFields.Slice()...)
-	valueMetric(&metric)
 
-	if _, err := easyjson.MarshalToWriter(metric, response); err != nil {
-		panic(err)
-	}
-}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+	defer func() {
+		cancel()
+		ctx.Done()
+	}()
 
-func valueMetric(metric *dto.Metric) {
-
-	var err error
-	var name string
-	num := types.Lookup(metric.ID)
-
-	if num > 0 {
-		name = num.String()
+	if metric, err := services.GetMetricsService(env.GetServerConfig()).DTOValue(ctx, &metric); err != nil {
+		return http.StatusNotFound
 	} else {
-		name = metric.ID
-	}
-	store = server.Storage(env.GetServerConfig())
-
-	switch {
-	case types.GAUGE.Eq(metric.MType):
-		value := store.GetGauge(name)
-		metric.Value = new(float64)
-		if value != nil {
-			*metric.Value, err = strconv.ParseFloat(*value, 64)
-		} else {
-			err = fmt.Errorf("value %s of type %s not found", name, metric.MType)
-		}
-	case types.COUNTER.Eq(metric.MType):
-		value := store.GetCounter(name)
-		metric.Delta = new(int64)
-		if value != nil {
-			*metric.Delta, err = strconv.ParseInt(*value, 10, 64)
-		} else {
-			err = fmt.Errorf("value %s of type %s not found", name, metric.MType)
+		if _, err := easyjson.MarshalToWriter(metric, response); err != nil {
+			return http.StatusNotFound
 		}
 	}
-	util.IfErrorThenPanic(err)
+	return http.StatusOK
 }

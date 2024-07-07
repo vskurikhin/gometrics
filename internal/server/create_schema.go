@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 14:22 by Victor N. Skurikhin.
  * create_schema.go
  * $Id$
  */
@@ -9,17 +9,15 @@ package server
 
 import (
 	"context"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"time"
+
+	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 var pgxPool = pgxPoolInstance()
 
 func CreateSchema() {
 	pool := pgxPool.getPool()
-	if pool == nil {
-		panic("poll is nil")
-	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer func() {

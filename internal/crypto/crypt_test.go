@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-05 16:02 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * crypt_test.go
  * $Id$
  */
@@ -11,13 +11,14 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"math/rand"
 	"os"
-	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 var (
@@ -28,12 +29,14 @@ var (
 
 func getTestConfigAgentCrypto() env.Config {
 	return env.GetTestConfig(
+		env.GetProperty,
 		env.WithCryptoKey(testPublicKeyFileName),
 	)
 }
 
 func getTestConfigServerCrypto() env.Config {
 	return env.GetTestConfig(
+		env.GetProperty,
 		env.WithCryptoKey(testPrivateKeyFileName),
 	)
 }
@@ -61,12 +64,10 @@ func exportRsaPublicKeyAsPemStr(pubkey *rsa.PublicKey) (string, error) {
 }
 
 func TestEncryptRSA(t *testing.T) {
-	once = new(sync.Once)
 	getTestConfigAgentCrypto()
+	t.Setenv("CRYPTO_KEY", testPublicKeyFileName)
 	ca := GetAgentCrypto()
-	once = new(sync.Once)
-	getTestConfigServerCrypto()
-	cs := GetServerCrypto()
+	cs := getTestServerCrypto()
 	be, err := ca.EncryptRSA([]byte(expected))
 	assert.Nil(t, err)
 	assert.NotNil(t, be)
@@ -76,18 +77,25 @@ func TestEncryptRSA(t *testing.T) {
 }
 
 func TestEncryptAES(t *testing.T) {
-	once = new(sync.Once)
 	getTestConfigAgentCrypto()
+	t.Setenv("CRYPTO_KEY", testPublicKeyFileName)
 	ca := GetAgentCrypto()
-	once = new(sync.Once)
-	getTestConfigServerCrypto()
-	cs := GetServerCrypto()
+	cs := getTestServerCrypto()
 	secretKey, be, err := ca.EncryptAES([]byte(expected))
 	assert.Nil(t, err)
 	assert.NotNil(t, be)
 	got, ok := cs.DecryptAES(secretKey, be)
 	assert.Nil(t, ok)
 	assert.Equal(t, expected, string(got))
+}
+
+func getTestServerCrypto() Crypto {
+	crypt := new(crypto)
+	crypt.privateKey =
+		getTestConfigServerCrypto().
+			Property().
+			PrivateKey()
+	return crypt
 }
 
 func init() {
@@ -99,7 +107,7 @@ func init() {
 
 	privateKeyFile, err := os.OpenFile(testPrivateKeyFileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0640)
 	util.IfErrorThenPanic(err)
-	defer func() { _ = privateKeyFile.Close() }()
+	defer util.FileClose(privateKeyFile)
 	_, err = privateKeyFile.Write([]byte(exportRsaPrivateKeyAsPemStr(privateKey)))
 	util.IfErrorThenPanic(err)
 
@@ -107,7 +115,7 @@ func init() {
 	util.IfErrorThenPanic(err)
 	publicKeyFile, err := os.OpenFile(testPublicKeyFileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0640)
 	util.IfErrorThenPanic(err)
-	defer func() { _ = publicKeyFile.Close() }()
+	defer util.FileClose(publicKeyFile)
 	_, err = publicKeyFile.Write([]byte(publicKeyStr))
 	util.IfErrorThenPanic(err)
 }

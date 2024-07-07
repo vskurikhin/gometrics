@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 14:51 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -8,15 +8,22 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/go-chi/render"
-	"github.com/vskurikhin/gometrics/internal/ip"
 	"log"
+	"net"
 	"net/http"
 	_ "net/http/pprof" // подключаем пакет pprof
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/go-chi/render"
+	"google.golang.org/grpc"
+	_ "google.golang.org/grpc/encoding/gzip"
+
+	"github.com/vskurikhin/gometrics/internal/crypto"
+	"github.com/vskurikhin/gometrics/internal/interceptor"
+	"github.com/vskurikhin/gometrics/internal/ip"
+	"github.com/vskurikhin/gometrics/internal/services"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -25,6 +32,8 @@ import (
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/handlers"
 	"github.com/vskurikhin/gometrics/internal/server"
+
+	pb "github.com/vskurikhin/gometrics/proto"
 )
 
 var (
@@ -39,21 +48,43 @@ func main() {
 
 func run(ctx context.Context) {
 
-	fmt.Printf(
+	log.Printf(
 		"Build version: %s\nBuild date: %s\nBuild commit: %s\n",
 		buildVersion, buildDate, buildCommit,
 	)
 	cfg := env.GetServerConfig()
-	fmt.Print(cfg)
+	log.Print(cfg)
 
 	server.DBInit(cfg)
-	server.Storage(cfg)
 	server.Read(cfg)
 	go server.SaveLoop(ctx, cfg)
 	handlingCaughtInterrupts(ctx, cfg)
 }
 
 func handlingCaughtInterrupts(ctx context.Context, cfg env.Config) {
+
+	// определяем порт для gRPC сервера
+	listen, err := net.Listen("tcp", cfg.GRPCAddress())
+	if err != nil {
+		log.Fatal(err)
+	}
+	opts := []grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(
+			interceptor.GetXRealIPVerifyer(cfg),
+			interceptor.LogUnaryServer,
+		),
+	}
+	tlsCredentials, err := crypto.LoadServerTLSCredentials()
+	if err != nil {
+		log.Println("Не удалось загрузить сертификаты для сервера gRPC")
+	} else {
+		opts = append(opts, grpc.Creds(tlsCredentials))
+	}
+	// создаём gRPC-сервер без зарегистрированной службы
+	s := grpc.NewServer(opts...)
+	ms := services.GetMetricsService(cfg)
+	// регистрируем сервис
+	pb.RegisterMetricsServiceServer(s, ms)
 
 	srv := newServer(cfg)
 	// через этот канал сообщим основному потоку, что соединения закрыты
@@ -70,19 +101,30 @@ func handlingCaughtInterrupts(ctx context.Context, cfg env.Config) {
 		// поскольку нужно прочитать только одно прерывание,
 		// можно обойтись без цикла
 		<-sigint
+		s.Stop()
+		log.Println("Выключение сервера gRPC")
 		// получили сигнал os.Interrupt, запускаем процедуру graceful shutdown
 		if err := srv.Shutdown(ctx); err != nil {
 			// ошибки закрытия Listener
-			log.Printf("HTTP server Shutdown: %v", err)
+			log.Printf("Выключение сервера HTTP вызвало ошибку: %v", err)
 		}
 		server.Save(cfg)
 		// сообщаем основному потоку,
 		// что все сетевые соединения обработаны и закрыты
 		close(idleConnsClosed)
 	}()
+
+	go func() {
+		log.Println("Сервер gRPC начал работу")
+		// получаем запрос gRPC
+		if err := s.Serve(listen); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		// ошибки старта или остановки Listener
-		log.Fatalf("HTTP server ListenAndServe: %v", err)
+		log.Fatalf("Сервер HTTP ListenAndServe: %v", err)
 	}
 	// ждём завершения процедуры graceful shutdown
 	<-idleConnsClosed
@@ -90,7 +132,7 @@ func handlingCaughtInterrupts(ctx context.Context, cfg env.Config) {
 	// здесь можно освобождать ресурсы перед выходом,
 	// например закрыть соединение с базой данных,
 	// закрыть открытые файлы
-	fmt.Println("Server Shutdown gracefully")
+	log.Println("Корректное завершение работы сервера")
 }
 
 func newServer(cfg env.Config) *http.Server {

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 09:35 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * zap_fields_test.go
  * $Id$
  */
@@ -7,9 +7,11 @@
 package util
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/vskurikhin/gometrics/internal/dto"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/vskurikhin/gometrics/internal/dto"
 )
 
 func TestMakeZapFields(t *testing.T) {

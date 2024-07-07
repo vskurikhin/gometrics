@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * metrics_test.go
  * $Id$
  */
@@ -9,9 +9,10 @@ package dto
 import (
 	"bytes"
 	"encoding/json"
+	"testing"
+
 	"github.com/mailru/easyjson"
 	"github.com/mailru/easyjson/jwriter"
-	"testing"
 )
 
 //goland:noinspection GoUnhandledErrorResult

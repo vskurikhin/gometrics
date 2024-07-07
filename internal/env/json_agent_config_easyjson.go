@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * json_agent_config_easyjson.go
  * $Id$
  */
@@ -10,6 +10,7 @@ package env
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -44,12 +45,14 @@ func easyjson9b168d43DecodeGithubComVskurikhinGometricsInternalEnv(in *jlexer.Le
 		switch key {
 		case "address":
 			out.Address = string(in.String())
-		case "report_interval":
-			out.ReportInterval = string(in.String())
-		case "poll_interval":
-			out.PollInterval = string(in.String())
 		case "crypto_key":
 			out.CryptoKey = string(in.String())
+		case "grpc_address":
+			out.GRPCAddress = string(in.String())
+		case "poll_interval":
+			out.PollInterval = string(in.String())
+		case "report_interval":
+			out.ReportInterval = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -70,9 +73,14 @@ func easyjson9b168d43EncodeGithubComVskurikhinGometricsInternalEnv(out *jwriter.
 		out.String(string(in.Address))
 	}
 	{
-		const prefix string = ",\"report_interval\":"
+		const prefix string = ",\"crypto_key\":"
 		out.RawString(prefix)
-		out.String(string(in.ReportInterval))
+		out.String(string(in.CryptoKey))
+	}
+	{
+		const prefix string = ",\"grpc_address\":"
+		out.RawString(prefix)
+		out.String(string(in.GRPCAddress))
 	}
 	{
 		const prefix string = ",\"poll_interval\":"
@@ -80,33 +88,33 @@ func easyjson9b168d43EncodeGithubComVskurikhinGometricsInternalEnv(out *jwriter.
 		out.String(string(in.PollInterval))
 	}
 	{
-		const prefix string = ",\"crypto_key\":"
+		const prefix string = ",\"report_interval\":"
 		out.RawString(prefix)
-		out.String(string(in.CryptoKey))
+		out.String(string(in.ReportInterval))
 	}
 	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (a agentConfig) MarshalJSON() ([]byte, error) {
+func (v agentConfig) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson9b168d43EncodeGithubComVskurikhinGometricsInternalEnv(&w, a)
+	easyjson9b168d43EncodeGithubComVskurikhinGometricsInternalEnv(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (a agentConfig) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson9b168d43EncodeGithubComVskurikhinGometricsInternalEnv(w, a)
+func (v agentConfig) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson9b168d43EncodeGithubComVskurikhinGometricsInternalEnv(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (a *agentConfig) UnmarshalJSON(data []byte) error {
+func (v *agentConfig) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson9b168d43DecodeGithubComVskurikhinGometricsInternalEnv(&r, a)
+	easyjson9b168d43DecodeGithubComVskurikhinGometricsInternalEnv(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (a *agentConfig) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson9b168d43DecodeGithubComVskurikhinGometricsInternalEnv(l, a)
+func (v *agentConfig) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson9b168d43DecodeGithubComVskurikhinGometricsInternalEnv(l, v)
 }

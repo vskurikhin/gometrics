@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-03 20:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * flags.go
  * $Id$
  */
@@ -7,9 +7,10 @@
 package env
 
 import (
-	"github.com/spf13/pflag"
 	"sync"
 	"time"
+
+	"github.com/spf13/pflag"
 )
 
 type flags struct {
@@ -17,6 +18,7 @@ type flags struct {
 	cryptoKey       *string
 	dataBaseDSN     *string
 	fileStoragePath *string
+	grpcAddress     *string
 	key             *string
 	pollInterval    *time.Duration
 	reportInterval  *time.Duration
@@ -50,6 +52,7 @@ func initAgentFlags() {
 			)
 			initConfigFlag()
 			initCryptoAgentFlag()
+			initGRPCAddressFlag()
 			initServerAddressFlag()
 			initKeyFlag()
 			pflag.Parse()
@@ -114,6 +117,15 @@ func initServerAddressFlag() {
 	)
 }
 
+func initGRPCAddressFlag() {
+	flag.grpcAddress = pflag.StringP(
+		GRPCAddress,
+		"g",
+		":3200",
+		"help message for GRPC host and port",
+	)
+}
+
 func initServerFlags() {
 
 	onceFlags.Do(func() {
@@ -153,6 +165,7 @@ func initServerFlags() {
 			)
 			initConfigFlag()
 			initCryptoServerFlag()
+			initGRPCAddressFlag()
 			initServerAddressFlag()
 			initKeyFlag()
 			pflag.Parse()

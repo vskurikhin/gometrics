@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-03 20:55 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * init_config.go
  * $Id$
  */
@@ -7,14 +7,16 @@
 package env
 
 import (
-	"github.com/vskurikhin/gometrics/internal/util"
 	"strconv"
 	"time"
+
+	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 func initAgentConfig() {
 
 	initAgentCryptoKey()
+	initGRPCAddress()
 	initServerAddress()
 	if env.ReportInterval > 0 {
 		cfg.reportInterval = time.Duration(env.ReportInterval) * time.Second
@@ -45,6 +47,7 @@ func initAgentConfig() {
 
 func initServerConfig() {
 
+	initGRPCAddress()
 	initServerAddress()
 	initServerCryptoKey()
 	if env.DataBaseDSN != "" {
@@ -135,6 +138,17 @@ func initServerCryptoKey() {
 		if len(cfg.cryptoKey) == 0 {
 			cfg.cryptoKey = jsonServerConfig.CryptoKey
 		}
+	}
+}
+
+func initGRPCAddress() {
+	if len(env.GRPCAddress) > 1 {
+		cfg.grpcAddress = env.parseEnvGRPCAddress()
+	} else {
+		cfg.grpcAddress = jsonConfig.getGRPCAddress()
+		setIfFlagChanged(Address, func() {
+			cfg.grpcAddress = util.Str(flag.grpcAddress)
+		})
 	}
 }
 

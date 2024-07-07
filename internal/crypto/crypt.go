@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-05 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * crypt.go
  * $Id$
  */
@@ -13,9 +13,10 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
+	"sync"
+
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/util"
-	"sync"
 )
 
 var _ Crypto = (*crypto)(nil)
@@ -37,8 +38,10 @@ type Crypto interface {
 func GetAgentCrypto() Crypto {
 	once.Do(func() {
 		crypt = new(crypto)
-		parameters := env.GetParameters()
-		crypt.publicKey = parameters.PublicKey()
+		crypt.publicKey = env.
+			GetAgentConfig().
+			Property().
+			PublicKey()
 	})
 	return crypt
 }
@@ -46,8 +49,10 @@ func GetAgentCrypto() Crypto {
 func GetServerCrypto() Crypto {
 	once.Do(func() {
 		crypt = new(crypto)
-		parameters := env.GetParameters()
-		crypt.privateKey = parameters.PrivateKey()
+		crypt.privateKey = env.
+			GetServerConfig().
+			Property().
+			PrivateKey()
 	})
 	return crypt
 }

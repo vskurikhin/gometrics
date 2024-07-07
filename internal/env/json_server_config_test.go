@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 22:54 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * json_server_config_test.go
  * $Id$
  */
@@ -9,12 +9,13 @@ package env
 import (
 	"bytes"
 	"encoding/json"
+	"os"
+	"testing"
+
 	c0env "github.com/caarlos0/env"
 	"github.com/mailru/easyjson"
 	"github.com/mailru/easyjson/jwriter"
 	"github.com/stretchr/testify/assert"
-	"os"
-	"testing"
 )
 
 func TestGetServerConfig(t *testing.T) {
@@ -114,11 +115,11 @@ func TestServerConfigEasyJSON(t *testing.T) {
 			c := new(serverConfig)
 
 			body, _ := json.Marshal(test.input)
-			c.UnmarshalJSON(body)
-			c.MarshalJSON()
+			_ = c.UnmarshalJSON(body)
+			_, _ = c.MarshalJSON()
 			w := new(jwriter.Writer)
 			c.MarshalEasyJSON(w)
-			easyjson.UnmarshalFromReader(bytes.NewReader(body), c)
+			_ = easyjson.UnmarshalFromReader(bytes.NewReader(body), c)
 		})
 	}
 }

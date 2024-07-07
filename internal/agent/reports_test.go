@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * reports_test.go
  * $Id$
  */
@@ -8,9 +8,6 @@ package agent
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/vskurikhin/gometrics/internal/env"
-	t "github.com/vskurikhin/gometrics/internal/types"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -18,6 +15,11 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/vskurikhin/gometrics/internal/env"
+	t "github.com/vskurikhin/gometrics/internal/types"
 )
 
 var (
@@ -75,6 +77,7 @@ func TestIsUpperBound(t *testing.T) {
 
 func getTestConfig() env.Config {
 	return env.GetTestConfig(
+		env.GetProperty,
 		env.WithDataBaseDSN(&testDataBaseDSN),
 		env.WithFileStoragePath(testTempFileName),
 		env.WithKey(&testKey),

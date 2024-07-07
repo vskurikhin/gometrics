@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 11:18 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:47 by Victor N. Skurikhin.
  * metric_test.go
  * $Id$
  */
@@ -10,10 +10,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/mailru/easyjson"
-	"github.com/mailru/easyjson/jwriter"
 	"os"
 	"testing"
+
+	"github.com/mailru/easyjson"
+	"github.com/mailru/easyjson/jwriter"
 )
 
 //goland:noinspection GoUnhandledErrorResult
@@ -71,8 +72,7 @@ func TestMetricCalcDeltaPositive(t *testing.T) {
 
 			metric := Metric{Delta: &d}
 
-			res := metric.CalcDelta(test.input)
-			fmt.Fprintf(os.Stderr, "res: %v\n", res)
+			_ = metric.CalcDelta(test.input)
 		})
 	}
 }
@@ -102,14 +102,13 @@ func TestMetricCalcDeltaNegative(t *testing.T) {
 
 			defer func() {
 				if p := recover(); p != nil {
-					fmt.Fprintf(os.Stderr, "recover: %v\n", p)
+					_, _ = fmt.Fprintf(os.Stderr, "recover: %v\n", p)
 				}
 			}()
 
 			var metric Metric
 
-			res := metric.CalcDelta(test.input)
-			fmt.Fprintf(os.Stderr, "res: %v\n", res)
+			_ = metric.CalcDelta(test.input)
 		})
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * update_handler.go
  * $Id$
  */
@@ -7,11 +7,11 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/parser"
-	"github.com/vskurikhin/gometrics/internal/server"
 	"github.com/vskurikhin/gometrics/internal/types"
-	"net/http"
 )
 
 // UpdateHandler обработчик сбора метрик и алертинга.
@@ -36,7 +36,10 @@ import (
 // • counter, int64 — новое значение должно добавляться к предыдущему, если какое-то значение уже было известно серверу.
 func UpdateHandler(response http.ResponseWriter, request *http.Request) {
 
-	store = server.Storage(env.GetServerConfig())
+	store = env.
+		GetServerConfig().
+		Property().
+		Storage()
 
 	defer func() {
 		if p := recover(); p != nil {
@@ -51,7 +54,10 @@ func UpdateHandler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	name := parsed.String()
-	store = server.Storage(env.GetServerConfig())
+	store = env.
+		GetServerConfig().
+		Property().
+		Storage()
 
 	switch parsed.Type() {
 	case types.COUNTER:

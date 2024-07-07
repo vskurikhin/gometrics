@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
- * parameters_util_test.go
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
+ * property_util_test.go
  * $Id$
  */
 
@@ -9,14 +9,16 @@ package env
 import (
 	"crypto/rsa"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"math/big"
 	"math/rand"
 	"os"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 const (
@@ -38,12 +40,14 @@ var (
 
 func getTestConfigAgent() Config {
 	return GetTestConfig(
+		GetProperty,
 		WithCryptoKey(testPublicKeyFileName),
 	)
 }
 
 func getTestConfigServer() Config {
 	return GetTestConfig(
+		GetProperty,
 		WithCryptoKey(testPrivateKeyFileName),
 	)
 }
@@ -67,7 +71,7 @@ func TestLoadPrivateKey(t *testing.T) {
 	n, ok1 := big.NewInt(0).SetString("e3198ff7f6c4949dd9c8e4f9d72afaee8fe8ce30e9e52ae36e9f5b31f7f9e9cd", 16)
 	assert.True(t, ok1)
 	publicKey := &rsa.PublicKey{E: 65537, N: n}
-	privateKey := loadPrivateKey()
+	privateKey := LoadPrivateKey()
 	expectedPrivateKey := privateKey
 	expectedPrivateKey.N = publicKey.N
 	expectedPrivateKey.E = publicKey.E
@@ -92,11 +96,9 @@ func TestLoadPrivateKey(t *testing.T) {
 }
 
 func TestLoadPublicKey(t *testing.T) {
-	parameters = nil
-	onceParameters = new(sync.Once)
 	getTestConfigAgent()
 	time.Sleep(501 * time.Millisecond)
-	publicKey := loadPublicKey()
+	publicKey := LoadPublicKey()
 	n, ok1 := big.NewInt(0).SetString("e3198ff7f6c4949dd9c8e4f9d72afaee8fe8ce30e9e52ae36e9f5b31f7f9e9cd", 16)
 	assert.True(t, ok1)
 	expectedPublicKey := &rsa.PublicKey{E: 65537, N: n}
@@ -110,13 +112,13 @@ func init() {
 	testPrivateKeyFileName = fmt.Sprintf("%s/test_private_key_%018d.pem", os.TempDir(), id)
 	privateKeyFile, err := os.OpenFile(testPrivateKeyFileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0640)
 	util.IfErrorThenPanic(err)
-	defer func() { _ = privateKeyFile.Close() }()
+	defer util.FileClose(privateKeyFile)
 	_, err = privateKeyFile.Write([]byte(privateKeyPEM))
 	util.IfErrorThenPanic(err)
 
 	publicKeyFile, err := os.OpenFile(testPublicKeyFileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0640)
 	util.IfErrorThenPanic(err)
-	defer func() { _ = publicKeyFile.Close() }()
+	defer util.FileClose(publicKeyFile)
 	_, err = publicKeyFile.Write([]byte(publicKeyPEM))
 	util.IfErrorThenPanic(err)
 }

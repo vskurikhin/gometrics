@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * value_json_handler_test.go
  * $Id$
  */
@@ -10,18 +10,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/server"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/vskurikhin/gometrics/internal/env"
 )
 
 func TestValueJSONHandler(t *testing.T) {
+	getTestConfig()
 	type want struct {
 		code        int
 		response    string
@@ -65,8 +67,6 @@ func TestValueJSONHandler(t *testing.T) {
 			},
 		},
 	}
-	cfg := getTestConfig()
-	server.Storage(cfg)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
@@ -78,6 +78,9 @@ func TestValueJSONHandler(t *testing.T) {
 			ctx := chi.NewRouteContext()
 
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
+
+			s := "1.1"
+			store.Put(test.variable, &s)
 
 			ValueJSONHandler(w, r)
 

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * handlers_test.go
  * $Id$
  */
@@ -11,11 +11,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/handlers"
 	"net/http"
 	"net/http/httptest"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/handlers"
 )
 
 func ExampleUpdateHandler() {

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-07 11:44 by Victor N. Skurikhin.
  * mem_storage.go
  * $Id$
  */
@@ -118,13 +118,7 @@ func (m *MemStorage) readFromFile(zf util.ZapFields, fileName string) (int, erro
 		logger.Log.Error("in ReadFromFile", zf.Slice()...)
 		return 0, nil
 	}
-	defer func() {
-		e := file.Close()
-		if e != nil {
-			zf.Append("error", err)
-			logger.Log.Error("in Close", zf.Slice()...)
-		}
-	}()
+	defer util.FileCloseAndLog(file)
 
 	buf, err := io.ReadAll(file)
 
@@ -188,13 +182,7 @@ func (m *MemStorage) saveToFile(zf util.ZapFields, fileName string) ([]byte, int
 		logger.Log.Error("in SaveToFile", zf.Slice()...)
 		return nil, 0
 	}
-	defer func() {
-		e := file.Close()
-		if e != nil {
-			zf.Append("error", err)
-			logger.Log.Error("in Close", zf.Slice()...)
-		}
-	}()
+	defer util.FileCloseAndLog(file)
 
 	n, err := file.Write(out)
 

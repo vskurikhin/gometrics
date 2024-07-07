@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-02 15:12 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * config_test.go
  * $Id$
  */
@@ -8,12 +8,13 @@ package env
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"os"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -113,7 +114,7 @@ func TestConfig(t *testing.T) {
 	reportInterval  : 1h0m0s
 	restore         : true
 	serverAddress   : ` + testServerAddress + `
-	storeInterval   : 24h0m0s
+	storeInterval   : 0s
 	urlHost         : http://` + testServerAddress + `
 `,
 		},
@@ -139,6 +140,7 @@ func TestTestFlags(t *testing.T) {
 
 func getTestConfig() Config {
 	return GetTestConfig(
+		GetProperty,
 		WithDataBaseDSN(&testDataBaseDSN),
 		WithFileStoragePath(testTempFileName),
 		WithKey(&testKey),
@@ -168,6 +170,7 @@ func getTestFlags() Config {
 	onceFlags = new(sync.Once)
 	initAgentFlags()
 	return GetTestConfig(
+		GetProperty,
 		WithDataBaseDSN(&testDataBaseDSN),
 		WithConfigFileName(testConfigFileName),
 		WithCryptoKey(testCryptoKey),
@@ -177,7 +180,6 @@ func getTestFlags() Config {
 		WithReportInterval(time.Hour),
 		WithRestore(true),
 		WithServerAddress(testServerAddress),
-		WithStoreInterval(24*time.Hour),
 	)
 }
 

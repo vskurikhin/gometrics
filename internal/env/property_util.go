@@ -1,19 +1,64 @@
 /*
- * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
- * parameters_util.go
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
+ * property_util.go
  * $Id$
  */
 
 package env
 
 import (
+	"context"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"io"
 	"net"
 	"os"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/vskurikhin/gometrics/internal/logger"
+	"github.com/vskurikhin/gometrics/internal/storage"
+	"github.com/vskurikhin/gometrics/internal/util"
 )
+
+func dbConnect(dsn string) *pgxpool.Pool {
+
+	config, err := pgxpool.ParseConfig(dsn)
+	util.IfErrorThenPanic(err)
+	logger.Log.Debug("dbConnect config parsed")
+
+	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		logger.Log.Debug("Acquire connect ping...")
+		if err = conn.Ping(ctx); err != nil {
+			panic(err)
+		}
+		logger.Log.Debug("Acquire connect Ok")
+		return nil
+	}
+
+	pool, err := pgxpool.NewWithConfig(context.TODO(), config)
+	util.IfErrorThenPanic(err)
+	logger.Log.Debug("NewWithConfig pool created")
+	_, err = pool.Acquire(context.TODO())
+	util.IfErrorThenPanic(err)
+	logger.Log.Debug("Acquire pool Ok")
+
+	return pool
+}
+
+func getStorage(pool *pgxpool.Pool) storage.Storage {
+
+	mem := new(storage.MemStorage)
+	mem.Metrics = make(map[string]*string)
+
+	if cfg.IsDBSetup() {
+		return storage.New(mem, pool)
+	} else {
+		return mem
+	}
+}
 
 // getOutboundIP - Get preferred outbound ip of this machine.
 func getOutboundIP() net.IP {
@@ -34,14 +79,14 @@ func getOutboundIP() net.IP {
 	return nil
 }
 
-func loadPrivateKey() *rsa.PrivateKey {
+func LoadPrivateKey() *rsa.PrivateKey {
 	if len(cfg.CryptoKey()) > 1 {
 		file, err := os.Open(cfg.CryptoKey())
 		if err != nil {
 			return nil
 		}
 		//nolint:multichecker,errcheck
-		defer func() { _ = file.Close() }()
+		defer util.FileClose(file)
 		buf, err := io.ReadAll(file)
 		if err != nil {
 			return nil
@@ -57,14 +102,14 @@ func loadPrivateKey() *rsa.PrivateKey {
 	return nil
 }
 
-func loadPublicKey() *rsa.PublicKey {
+func LoadPublicKey() *rsa.PublicKey {
 	if len(cfg.CryptoKey()) > 1 {
 		file, err := os.Open(cfg.CryptoKey())
 		if err != nil {
 			return nil
 		}
 		//nolint:multichecker,errcheck
-		defer func() { _ = file.Close() }()
+		defer util.FileClose(file)
 		buf, err := io.ReadAll(file)
 		if err != nil {
 			return nil

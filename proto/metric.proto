@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package proto;
+
+import "proto/status.proto";
+
+option go_package = "github.com/vskurikhin/gometrics/proto";
+
+message Metric {
+  string id = 1;  // id имя метрики
+  string type = 2; // параметр, принимающий значение gauge или counter
+  sint64 delta = 3;  // значение метрики в случае передачи counter
+  double value = 4;  // значение метрики в случае передачи gauge
+}
+
+message MetricRequestValue {
+  string id = 1;  // id имя метрики
+  string type = 2; // параметр, принимающий значение gauge или counter
+}
+
+message MetricUpdateRequest {
+  Metric metric = 1;
+}
+
+message MetricUpdateResponse {
+  Metric metric = 1;
+  Status status = 2;
+  string error = 3;
+}
+
+message MetricValueRequest {
+  MetricRequestValue metric = 1;
+}
+
+message MetricValueResponse {
+  Metric metric = 1;
+  Status status = 2;
+  string error = 3;
+}

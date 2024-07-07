@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-05 15:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * z_handle_wrapper.go
  * $Id$
  */
@@ -12,11 +12,13 @@ import (
 	"compress/gzip"
 	"encoding/base64"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/crypto"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"strings"
+
+	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/crypto"
 
 	"github.com/vskurikhin/gometrics/internal/logger"
 )

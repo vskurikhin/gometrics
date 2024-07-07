@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-03 20:55 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * json_server_config_easyjson.go
  * $Id$
  */
@@ -10,6 +10,7 @@ package env
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -48,6 +49,8 @@ func easyjsonF30d2885DecodeGithubComVskurikhinGometricsInternalEnv(in *jlexer.Le
 			out.CryptoKey = string(in.String())
 		case "database_dsn":
 			out.DatabaseDSN = string(in.String())
+		case "grpc_address":
+			out.GRPCAddress = string(in.String())
 		case "restore":
 			out.Restore = bool(in.Bool())
 		case "store_file":
@@ -84,6 +87,11 @@ func easyjsonF30d2885EncodeGithubComVskurikhinGometricsInternalEnv(out *jwriter.
 		const prefix string = ",\"database_dsn\":"
 		out.RawString(prefix)
 		out.String(string(in.DatabaseDSN))
+	}
+	{
+		const prefix string = ",\"grpc_address\":"
+		out.RawString(prefix)
+		out.String(string(in.GRPCAddress))
 	}
 	{
 		const prefix string = ",\"restore\":"

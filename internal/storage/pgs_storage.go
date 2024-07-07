@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * pgs_storage.go
  * $Id$
  */
@@ -10,9 +10,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"strconv"
 	"time"
+
+	"github.com/vskurikhin/gometrics/internal/util"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"

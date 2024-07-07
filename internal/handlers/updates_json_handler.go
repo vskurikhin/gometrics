@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * updates_json_handler.go
  * $Id$
  */
@@ -7,22 +7,26 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/mailru/easyjson"
+	"go.uber.org/zap"
+
 	"github.com/vskurikhin/gometrics/internal/compress"
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/server"
+	"github.com/vskurikhin/gometrics/internal/services"
 	"github.com/vskurikhin/gometrics/internal/util"
-	"go.uber.org/zap"
-	"net/http"
 )
 
 type Article struct {
 }
 
-func (a *Article) Render(w http.ResponseWriter, r *http.Request) error {
+func (a *Article) Render(w http.ResponseWriter, _ *http.Request) error {
 	_, _ = w.Write([]byte(""))
 	return nil
 }
@@ -64,9 +68,15 @@ func updatesJSON(response http.ResponseWriter, request *http.Request) (int, erro
 		zapFields := util.ZapFieldsMetric(&metric)
 		logger.Log.Debug("got incoming HTTP request with JSON in updatesJSON", zapFields.Slice()...)
 	}
-	store = server.Storage(env.GetServerConfig())
-	store.PutSlice(metrics)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+	defer func() {
+		cancel()
+		ctx.Done()
+	}()
 
+	if _, err := services.GetMetricsService(env.GetServerConfig()).DTOUpdates(ctx, &metrics); err != nil {
+		return http.StatusNotFound, err
+	}
 	if _, err := easyjson.MarshalToWriter(metrics, response); err != nil {
 		return http.StatusNotFound, err
 	}

@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
- * metrics_easyjson.go
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
+ * metrics.model.easyjson.go
  * $Id$
  */
 
@@ -24,7 +24,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson2220f231DecodeGithubComVskurikhinGometricsInternalDto(in *jlexer.Lexer, out *Metrics) {
+func easyjsonB542e127DecodeGithubComVskurikhinGometricsInternalDto(in *jlexer.Lexer, out *Metrics) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		in.Skip()
@@ -52,7 +52,7 @@ func easyjson2220f231DecodeGithubComVskurikhinGometricsInternalDto(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjson2220f231EncodeGithubComVskurikhinGometricsInternalDto(out *jwriter.Writer, in Metrics) {
+func easyjsonB542e127EncodeGithubComVskurikhinGometricsInternalDto(out *jwriter.Writer, in Metrics) {
 	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 		out.RawString("null")
 	} else {
@@ -70,23 +70,23 @@ func easyjson2220f231EncodeGithubComVskurikhinGometricsInternalDto(out *jwriter.
 // MarshalJSON supports json.Marshaler interface
 func (v Metrics) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson2220f231EncodeGithubComVskurikhinGometricsInternalDto(&w, v)
+	easyjsonB542e127EncodeGithubComVskurikhinGometricsInternalDto(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Metrics) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson2220f231EncodeGithubComVskurikhinGometricsInternalDto(w, v)
+	easyjsonB542e127EncodeGithubComVskurikhinGometricsInternalDto(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Metrics) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson2220f231DecodeGithubComVskurikhinGometricsInternalDto(&r, v)
+	easyjsonB542e127DecodeGithubComVskurikhinGometricsInternalDto(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Metrics) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson2220f231DecodeGithubComVskurikhinGometricsInternalDto(l, v)
+	easyjsonB542e127DecodeGithubComVskurikhinGometricsInternalDto(l, v)
 }

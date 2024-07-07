@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-07-04 17:29 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * check_real_ip.go
  * $Id$
  */
@@ -9,10 +9,12 @@ package ip
 
 import (
 	"fmt"
-	"github.com/go-chi/render"
-	"github.com/vskurikhin/gometrics/internal/env"
 	"net"
 	"net/http"
+
+	"github.com/go-chi/render"
+
+	"github.com/vskurikhin/gometrics/internal/env"
 )
 
 type HTTPError struct {
@@ -57,4 +59,14 @@ func xRealIPChecker(next http.Handler, _ error) http.Handler {
 			next.ServeHTTP(w, r)
 		}
 	})
+}
+
+func TrustedIpNet(cfg env.Config) *net.IPNet {
+
+	_, ipNet, err := net.ParseCIDR(cfg.TrustedSubnet())
+
+	if err != nil {
+		return nil
+	}
+	return ipNet
 }

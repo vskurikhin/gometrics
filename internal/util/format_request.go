@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-02-04 14:23 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * format_request.go
  * $Id$
  */
@@ -9,9 +9,10 @@ package util
 
 import (
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/logger"
 	"net/http"
 	"strings"
+
+	"github.com/vskurikhin/gometrics/internal/logger"
 )
 
 // FormatRequest генерирует ascii-представление запроса
