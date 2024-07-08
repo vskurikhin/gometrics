@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * root_handler_test.go
  * $Id$
  */
@@ -9,14 +9,17 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/vskurikhin/gometrics/internal/env"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/storage"
 )
 
 var (
@@ -44,7 +47,14 @@ func TestRootHandler(t *testing.T) {
 }
 
 func getTestConfig() env.Config {
+	env.GetServerConfig()
+	mem := new(storage.MemStorage)
+	mem.Metrics = make(map[string]*string)
+	store = mem
 	return env.GetTestConfig(
+		func() env.Property {
+			return env.GetTestProperty(env.WithStorage(store))
+		},
 		env.WithDataBaseDSN(&testDataBaseDSN),
 		env.WithFileStoragePath(testTempFileName),
 		env.WithKey(&testKey),

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 14:00 by Victor N. Skurikhin.
  * json_server_config.go
  * $Id$
  */
@@ -8,20 +8,24 @@ package env
 
 import (
 	"bytes"
-	"github.com/mailru/easyjson"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"io"
 	"os"
+
+	"github.com/mailru/easyjson"
+
+	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 // serverConfig конфигурация сервера с помощью файла в формате JSON.
 type serverConfig struct {
 	Address       string `json:"address"`        // Address аналог переменной окружения ADDRESS или флага -a
-	Restore       bool   `json:"restore"`        // Restore аналог переменной окружения RESTORE или флага -r
-	StoreInterval string `json:"store_interval"` // StoreInterval аналог переменной окружения STORE_INTERVAL или флага -i
-	StoreFile     string `json:"store_file"`     // StoreFile аналог переменной окружения STORE_FILE или -f
-	DatabaseDSN   string `json:"database_dsn"`   // DatabaseDSN аналог переменной окружения DATABASE_DSN или флага -d
 	CryptoKey     string `json:"crypto_key"`     // CryptoKey аналог переменной окружения CRYPTO_KEY или флага -crypto-key
+	DatabaseDSN   string `json:"database_dsn"`   // DatabaseDSN аналог переменной окружения DATABASE_DSN или флага -d
+	GRPCAddress   string `json:"grpc_address"`   // GRPCAddress аналог Address только для gRPC сервера
+	Restore       bool   `json:"restore"`        // Restore аналог переменной окружения RESTORE или флага -r
+	StoreFile     string `json:"store_file"`     // StoreFile аналог переменной окружения STORE_FILE или -f
+	StoreInterval string `json:"store_interval"` // StoreInterval аналог переменной окружения STORE_INTERVAL или флага -i
+	TrustedSubnet string `json:"trusted_subnet"` // TrustedSubnet строковое представление бесклассовой адресации (CIDR).
 }
 
 var jsonServerConfig *serverConfig
@@ -54,4 +58,8 @@ func getServerConfig() *serverConfig {
 
 func (sc *serverConfig) getAddress() string {
 	return sc.Address
+}
+
+func (sc *serverConfig) getGRPCAddress() string {
+	return sc.GRPCAddress
 }

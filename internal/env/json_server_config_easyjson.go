@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * json_server_config_easyjson.go
  * $Id$
  */
@@ -10,6 +10,7 @@ package env
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -44,16 +45,20 @@ func easyjsonF30d2885DecodeGithubComVskurikhinGometricsInternalEnv(in *jlexer.Le
 		switch key {
 		case "address":
 			out.Address = string(in.String())
-		case "restore":
-			out.Restore = bool(in.Bool())
-		case "store_interval":
-			out.StoreInterval = string(in.String())
-		case "store_file":
-			out.StoreFile = string(in.String())
-		case "database_dsn":
-			out.DatabaseDSN = string(in.String())
 		case "crypto_key":
 			out.CryptoKey = string(in.String())
+		case "database_dsn":
+			out.DatabaseDSN = string(in.String())
+		case "grpc_address":
+			out.GRPCAddress = string(in.String())
+		case "restore":
+			out.Restore = bool(in.Bool())
+		case "store_file":
+			out.StoreFile = string(in.String())
+		case "store_interval":
+			out.StoreInterval = string(in.String())
+		case "trusted_subnet":
+			out.TrustedSubnet = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -74,19 +79,9 @@ func easyjsonF30d2885EncodeGithubComVskurikhinGometricsInternalEnv(out *jwriter.
 		out.String(string(in.Address))
 	}
 	{
-		const prefix string = ",\"restore\":"
+		const prefix string = ",\"crypto_key\":"
 		out.RawString(prefix)
-		out.Bool(bool(in.Restore))
-	}
-	{
-		const prefix string = ",\"store_interval\":"
-		out.RawString(prefix)
-		out.String(string(in.StoreInterval))
-	}
-	{
-		const prefix string = ",\"store_file\":"
-		out.RawString(prefix)
-		out.String(string(in.StoreFile))
+		out.String(string(in.CryptoKey))
 	}
 	{
 		const prefix string = ",\"database_dsn\":"
@@ -94,9 +89,29 @@ func easyjsonF30d2885EncodeGithubComVskurikhinGometricsInternalEnv(out *jwriter.
 		out.String(string(in.DatabaseDSN))
 	}
 	{
-		const prefix string = ",\"crypto_key\":"
+		const prefix string = ",\"grpc_address\":"
 		out.RawString(prefix)
-		out.String(string(in.CryptoKey))
+		out.String(string(in.GRPCAddress))
+	}
+	{
+		const prefix string = ",\"restore\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.Restore))
+	}
+	{
+		const prefix string = ",\"store_file\":"
+		out.RawString(prefix)
+		out.String(string(in.StoreFile))
+	}
+	{
+		const prefix string = ",\"store_interval\":"
+		out.RawString(prefix)
+		out.String(string(in.StoreInterval))
+	}
+	{
+		const prefix string = ",\"trusted_subnet\":"
+		out.RawString(prefix)
+		out.String(string(in.TrustedSubnet))
 	}
 	out.RawByte('}')
 }

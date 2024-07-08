@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 23:55 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -9,11 +9,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"os/signal"
+	"syscall"
+
 	"github.com/vskurikhin/gometrics/internal/agent"
 	"github.com/vskurikhin/gometrics/internal/env"
 	t "github.com/vskurikhin/gometrics/internal/types"
-	"os/signal"
-	"syscall"
 )
 
 var (

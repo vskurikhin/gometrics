@@ -1,6 +1,6 @@
 /*
- * This file was last modified at 2024-05-28 16:19 by Victor N. Skurikhin.
- * metric_easyjson.go
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
+ * metric.model.easyjson.go
  * $Id$
  */
 
@@ -24,7 +24,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson9478868cDecodeGithubComVskurikhinGometricsInternalDto(in *jlexer.Lexer, out *Metric) {
+func easyjson2f77a206DecodeGithubComVskurikhinGometricsInternalDto(in *jlexer.Lexer, out *Metric) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -77,7 +77,7 @@ func easyjson9478868cDecodeGithubComVskurikhinGometricsInternalDto(in *jlexer.Le
 		in.Consumed()
 	}
 }
-func easyjson9478868cEncodeGithubComVskurikhinGometricsInternalDto(out *jwriter.Writer, in Metric) {
+func easyjson2f77a206EncodeGithubComVskurikhinGometricsInternalDto(out *jwriter.Writer, in Metric) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -105,25 +105,25 @@ func easyjson9478868cEncodeGithubComVskurikhinGometricsInternalDto(out *jwriter.
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (m Metric) MarshalJSON() ([]byte, error) {
+func (v Metric) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson9478868cEncodeGithubComVskurikhinGometricsInternalDto(&w, m)
+	easyjson2f77a206EncodeGithubComVskurikhinGometricsInternalDto(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (m Metric) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson9478868cEncodeGithubComVskurikhinGometricsInternalDto(w, m)
+func (v Metric) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson2f77a206EncodeGithubComVskurikhinGometricsInternalDto(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (m *Metric) UnmarshalJSON(data []byte) error {
+func (v *Metric) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson9478868cDecodeGithubComVskurikhinGometricsInternalDto(&r, m)
+	easyjson2f77a206DecodeGithubComVskurikhinGometricsInternalDto(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (m *Metric) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson9478868cDecodeGithubComVskurikhinGometricsInternalDto(l, m)
+func (v *Metric) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson2f77a206DecodeGithubComVskurikhinGometricsInternalDto(l, v)
 }

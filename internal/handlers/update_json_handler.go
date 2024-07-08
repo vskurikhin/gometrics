@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * update_json_handler.go
  * $Id$
  */
@@ -7,16 +7,19 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/mailru/easyjson"
+	"go.uber.org/zap"
+
 	"github.com/vskurikhin/gometrics/internal/dto"
 	"github.com/vskurikhin/gometrics/internal/env"
 	"github.com/vskurikhin/gometrics/internal/logger"
-	"github.com/vskurikhin/gometrics/internal/server"
-	"github.com/vskurikhin/gometrics/internal/types"
+	"github.com/vskurikhin/gometrics/internal/services"
 	"github.com/vskurikhin/gometrics/internal/util"
-	"go.uber.org/zap"
-	"net/http"
 )
 
 // UpdateJSONHandler обработчик сбора метрик и алертинга, передачи метрик на сервер.
@@ -65,34 +68,17 @@ func updateJSON(response http.ResponseWriter, request *http.Request) (int, error
 	zapFields := util.ZapFieldsMetric(&metric)
 	logger.Log.Debug("got incoming HTTP request with JSON in updateJSON", zapFields.Slice()...)
 
-	updateMetric(&metric)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+	defer func() {
+		cancel()
+		ctx.Done()
+	}()
 
+	if _, err := services.GetMetricsService(env.GetServerConfig()).DTOUpdate(ctx, &metric); err != nil {
+		return http.StatusNotFound, err
+	}
 	if _, err := easyjson.MarshalToWriter(metric, response); err != nil {
 		return http.StatusNotFound, err
 	}
 	return http.StatusOK, nil
-}
-
-func updateMetric(metric *dto.Metric) {
-
-	num := types.Lookup(metric.ID)
-	var name string
-
-	if num > 0 {
-		name = num.String()
-	} else {
-		name = metric.ID
-	}
-	store = server.Storage(env.GetServerConfig())
-
-	switch {
-	case types.GAUGE.Eq(metric.MType):
-		value := fmt.Sprintf("%.12f", *metric.Value)
-		store.PutGauge(name, &value)
-	case types.COUNTER.Eq(metric.MType):
-		pv := store.GetCounter(name)
-		*metric.Delta = metric.CalcDelta(pv)
-		value := fmt.Sprintf("%d", *metric.Delta)
-		store.PutCounter(name, &value)
-	}
 }

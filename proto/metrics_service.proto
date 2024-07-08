@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/vskurikhin/gometrics/proto";
+
+import "proto/metric.proto";
+import "proto/metrics.proto";
+
+service MetricsService {
+  rpc Update(MetricUpdateRequest) returns (MetricUpdateResponse);
+  rpc Updates(MetricsUpdateRequest) returns (MetricsUpdateResponse);
+  rpc Value(MetricValueRequest) returns (MetricValueResponse);
+}

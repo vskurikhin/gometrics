@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-16 13:33 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-07 11:44 by Victor N. Skurikhin.
  * read.go
  * $Id$
  */
@@ -12,6 +12,9 @@ import (
 
 func Read(cfg env.Config) {
 	if cfg.Restore() && cfg.FileStoragePath() != "" {
-		store.ReadFromFile(cfg.FileStoragePath())
+		cfg.
+			Property().
+			Storage().
+			ReadFromFile(cfg.FileStoragePath())
 	}
 }

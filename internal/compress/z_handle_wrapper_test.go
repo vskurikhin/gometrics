@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * z_handle_wrapper_test.go
  * $Id$
  */
@@ -8,10 +8,11 @@ package compress
 
 import (
 	"context"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func TestZHandleWrapper(t *testing.T) {

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-25 00:58 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * multichecker.go
  * $Id$
  */
@@ -8,8 +8,9 @@
 package multichecker
 
 import (
+	"regexp"
+
 	"github.com/kisielk/errcheck/errcheck"
-	"github.com/vskurikhin/gometrics/internal/analyzer"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
 	"golang.org/x/tools/go/analysis/passes/appends"
@@ -49,7 +50,8 @@ import (
 	"honnef.co/go/tools/analysis/facts/deprecated"
 	"honnef.co/go/tools/staticcheck"
 	"honnef.co/go/tools/stylecheck"
-	"regexp"
+
+	"github.com/vskurikhin/gometrics/internal/analyzer"
 )
 
 // Main статический анализ кода.

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * os_exit_check.go
  * $Id$
  */
@@ -9,6 +9,7 @@ package analyzer
 
 import (
 	"go/ast"
+
 	"golang.org/x/tools/go/analysis"
 )
 

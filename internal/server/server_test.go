@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 23:25 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 14:03 by Victor N. Skurikhin.
  * server_test.go
  * $Id$
  */
@@ -7,13 +7,16 @@
 package server
 
 import (
+	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/vskurikhin/gometrics/internal/env"
 	"math/rand"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/vskurikhin/gometrics/internal/env"
 )
 
 var (
@@ -32,16 +35,15 @@ func TestDBInit(t *testing.T) {
 	assert.NotNil(t, pgxPool.getPool())
 }
 
-//TODO
-//func TestSave(t *testing.T) {
-//
-//	cfg := getTestConfig()
-//	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
-//	defer cancel()
-//	Storage(cfg)
-//	SaveLoop(ctx, cfg)
-//	Read(cfg)
-//}
+func TestSave(t *testing.T) {
+
+	cfg := getTestConfig()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
+	defer cancel()
+	env.GetServerConfig()
+	SaveLoop(ctx, cfg)
+	Read(cfg)
+}
 
 func TestServer(t *testing.T) {
 
@@ -64,6 +66,7 @@ func TestServer(t *testing.T) {
 
 func getTestConfig() env.Config {
 	return env.GetTestConfig(
+		env.GetProperty,
 		env.WithDataBaseDSN(&testDataBaseDSN),
 		env.WithFileStoragePath(testTempFileName),
 		env.WithKey(&testKey),
@@ -77,6 +80,7 @@ func getTestConfig() env.Config {
 
 func getTestDBInit() env.Config {
 	return env.GetTestConfig(
+		env.GetProperty,
 		env.WithDataBaseDSN(&dbInitDataBaseDSN),
 		env.WithFileStoragePath(testTempFileName),
 		env.WithKey(&testKey),

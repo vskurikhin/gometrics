@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-28 21:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * storage_test.go
  * $Id$
  */
@@ -18,8 +18,9 @@ package handlers
 import (
 	reflect "reflect"
 
-	dto "github.com/vskurikhin/gometrics/internal/dto"
 	gomock "go.uber.org/mock/gomock"
+
+	dto "github.com/vskurikhin/gometrics/internal/dto"
 )
 
 // MockStorage is a mock of Storage interface.

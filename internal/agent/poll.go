@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-25 00:17 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * poll.go
  * $Id$
  */
@@ -10,12 +10,13 @@ package agent
 import (
 	"context"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/env"
-	"github.com/vskurikhin/gometrics/internal/types"
 	"math/rand"
 	"runtime"
 	"sync/atomic"
 	"time"
+
+	"github.com/vskurikhin/gometrics/internal/env"
+	"github.com/vskurikhin/gometrics/internal/types"
 )
 
 var count = atomic.Uint64{}

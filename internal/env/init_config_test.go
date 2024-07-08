@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 22:51 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * init_config_test.go
  * $Id$
  */
@@ -7,13 +7,14 @@
 package env
 
 import (
+	"testing"
+
 	c0env "github.com/caarlos0/env"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestInitAgentCryptoKey(t *testing.T) {
-	t.Setenv("CRYPTO_KEY", testCryptoKey[0]+"-"+testCryptoKey[1])
+	t.Setenv("CRYPTO_KEY", testCryptoKey)
 	cfg = new(config)
 	env = new(environments)
 	err := c0env.Parse(env)
@@ -23,7 +24,7 @@ func TestInitAgentCryptoKey(t *testing.T) {
 }
 
 func TestInitServerCryptoKey(t *testing.T) {
-	t.Setenv("CRYPTO_KEY", testCryptoKey[0]+"-"+testCryptoKey[1])
+	t.Setenv("CRYPTO_KEY", testCryptoKey)
 	cfg = new(config)
 	env = new(environments)
 	err := c0env.Parse(env)

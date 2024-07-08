@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */
@@ -7,13 +7,14 @@
 package main
 
 import (
-	"github.com/vskurikhin/gometrics/internal/multichecker"
 	"os"
 	"regexp"
+
+	"github.com/vskurikhin/gometrics/internal/multichecker"
 )
 
 var _ = func() int {
-	if osArgsNotExistTest(os.Args) {
+	if osArgsNotExistTest() {
 		args := make([]string, 0)
 		for i, arg := range os.Args {
 			if i == 0 {
@@ -28,7 +29,7 @@ var _ = func() int {
 	return 0
 }()
 
-func osArgsNotExistTest(args []string) bool {
+func osArgsNotExistTest() bool {
 	re, _ := regexp.Compile(`^SA\d+$`)
 	for _, arg := range os.Args {
 		if re.MatchString(arg) {

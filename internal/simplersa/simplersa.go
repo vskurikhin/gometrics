@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:56 by Victor N. Skurikhin.
  * simplersa.go
  * $Id$
  */
@@ -18,7 +18,7 @@ import (
 )
 
 // PublicKey структура для публичного ключа RSA.
-// Размер для n не меньше 8192 бит в для агента см. TODO в agent.NewRequest.
+// Размер для n не меньше 8192 бит в для агента. Механизм переделан в пакете crypto.
 type PublicKey struct {
 	N *big.Int
 	E *big.Int

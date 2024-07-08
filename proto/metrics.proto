@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/vskurikhin/gometrics/proto";
+
+import "proto/metric.proto";
+import "proto/status.proto";
+
+message Metrics {
+  repeated Metric metrics = 1;
+  int32    count = 2;
+}
+
+message MetricsUpdateRequest {
+  Metrics metrics = 1;
+}
+
+message MetricsUpdateResponse {
+  Status status = 1;
+  string error = 2;
+}

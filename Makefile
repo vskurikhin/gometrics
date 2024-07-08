@@ -66,7 +66,7 @@ clean:
 ## compile: Compile the binary.
 go-compile: go-build-agent go-build-multichecker go-build-server
 
-go-build-agent:
+go-build-agent: generate
 	@echo "  >  Building agent binary..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/agent && go build -ldflags "-X main.buildVersion=v1.0.1 -X 'main.buildDate=$$(date +'%Y/%m/%d')' -X 'main.buildCommit=$$(git rev-parse HEAD)'" -o $(GOBIN)/agent $(GOFILES)
 
@@ -74,7 +74,7 @@ go-build-multichecker:
 	@echo "  >  Building multi checker binary..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/staticlint && go build -o $(GOBIN)/multichecker $(GOFILES)
 
-go-build-server:
+go-build-server: generate
 	@echo "  >  Building server binary..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/server && go build -ldflags "-X main.buildVersion=v1.0.1 -X 'main.buildDate=$$(date +'%Y/%m/%d')' -X 'main.buildCommit=$$(git rev-parse HEAD)'"  -o $(GOBIN)/server $(GOFILES)
 
@@ -107,6 +107,51 @@ go-clean:
 go-vet:
 	@echo "  >  Vet uses for test"
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go vet ./...
+
+DTO_DIR = ./internal/dto
+DTO_FILES = $(wildcard $(DTO_DIR)/*.model.go)
+MODEL_EASY_JSON_GO := $(DTO_FILES:%.model.go=%.model.easyjson.go)
+
+# Implicit targets
+%.model.easyjson.go: %.model.go
+	@easyjson -all -output_filename ./$@ ./$<
+
+# Define where the *.proto files are located.
+PROTO_DIR = ./proto
+
+# Find all the proto files.
+# Extend this for subfolders.
+PROTO_FILES = $(wildcard $(PROTO_DIR)/*.proto)
+
+# Convert the names of the proto files to the name of the
+# generated header files.
+PROTO_PB_GO := $(PROTO_FILES:%.proto=%.pb.go)
+
+##################
+# Implicit targets
+##################
+
+# This rulle is used to generate the message source files based
+# on the *.proto files.
+%.pb.go: %.proto
+	@protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./$<
+
+####################################
+# Major source code-generate targets
+####################################
+generate: $(PROTO_PB_GO) $(MODEL_EASY_JSON_GO)
+	@echo "  >  Done generating source files based on *.proto and *.model.go files."
+
+cert:
+	@cd cert && rm -f *.pem
+	@cd cert; openssl req -x509 -newkey rsa:4096 -days 365 -nodes -keyout ca-key.pem -out ca-cert.pem -subj "/C=RU/ST=Moscow/L=Moscow/O=Tech School/OU=Education/CN=localhost/emailAddress=none@gmail.com"
+	@echo "CA's self-signed certificate"
+	@cd cert; openssl x509 -in ca-cert.pem -noout -text
+	@cd cert; openssl req -newkey rsa:4096 -nodes -keyout server-key.pem -out server-req.pem -subj "/C=RU/ST=Moscow/L=Moscow/O=Tech School/OU=Education/CN=localhost/emailAddress=none@gmail.com"
+	@cd cert; openssl x509 -req -in server-req.pem -days 60 -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem -extfile server-ext.cnf
+	@echo "Server's signed certificate"
+	@cd cert; openssl x509 -in server-cert.pem -noout -text
+
 
 test14: test13
 	@echo "  > Test Iteration 14 ..."
@@ -164,7 +209,7 @@ test1:
 	@echo "  > Test Iteration 1 ..."
 	cd bin && ./metricstest -test.v -test.run=^TestIteration1$$ -binary-path=./server
 
-.PHONY: help
+.PHONY: cert help
 all: help
 help: Makefile
 	@echo

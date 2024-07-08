@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-25 00:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * reports.go
  * $Id$
  */
@@ -10,12 +10,14 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/util"
-	"io"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/vskurikhin/gometrics/internal/crypto"
+	"github.com/vskurikhin/gometrics/internal/util"
 
 	"github.com/mailru/easyjson"
 	"go.uber.org/zap"
@@ -29,12 +31,15 @@ import (
 func Reports(ctx context.Context, cfg env.Config, enabled []types.Name) {
 
 	client := http.Client{}
+	time.Sleep(cfg.PollInterval())
+	grpcReports(cfg, enabled)
 	for {
 		select {
 		case <-ctx.Done():
-			reports(cfg, enabled, &client)
+			grpcReports(cfg, enabled)
 			return
 		default:
+			go grpcReports(cfg, enabled)
 			go reports(cfg, enabled, &client)
 			time.Sleep(cfg.ReportInterval())
 		}
@@ -105,31 +110,45 @@ func getMetric(n types.Name) *dto.Metric {
 //goland:noinspection GoUnhandledErrorResult
 func newRequest(cfg env.Config, metrics dto.Metrics) (*http.Request, error) {
 
-	var b1, b2 bytes.Buffer
+	var marshalBuffer, requestBuffer bytes.Buffer
 
-	if _, err := easyjson.MarshalToWriter(metrics, &b1); err != nil {
+	if _, err := easyjson.MarshalToWriter(metrics, &marshalBuffer); err != nil {
 		return nil, err
 	}
-	gz, err := gzip.NewWriterLevel(&b2, gzip.BestSpeed)
+
+	crypt := crypto.GetAgentCrypto()
+	gz, err := gzip.NewWriterLevel(&requestBuffer, gzip.BestSpeed)
+
+	if err != nil {
+		return nil, err
+	}
+	body := marshalBuffer.Bytes()
+	secretKey, be, err := crypt.EncryptAES(body)
 
 	if err != nil {
 		//nolint:multichecker,errcheck
-		_, _ = io.WriteString(&b1, err.Error())
-		return nil, err
+		_, _ = gz.Write(body)
+	} else {
+		//nolint:multichecker,errcheck
+		_, _ = gz.Write(be)
 	}
-	//nolint:multichecker,errcheck
-	_, _ = gz.Write(b1.Bytes())
 	//nolint:multichecker,errcheck
 	_ = gz.Close()
 
 	path := *cfg.URLHost() + env.UpdatesURL
-	request, err := http.NewRequest(http.MethodPost, path, &b2)
+	request, err := http.NewRequest(http.MethodPost, path, &requestBuffer)
 
 	if err != nil {
 		return nil, err
 	}
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Content-Encoding", "gzip")
+	key := encryptRSAAndBase64StdEncoding(crypt, secretKey)
+	request.Header.Add("X-Content-Encrypting", key)
+	logger.Log.Debug("post EncryptRSA", zap.String("key", key))
+	ip := cfg.Property().OutboundIP()
+	request.Header.Add("X-Real-IP", ip.String())
+
 	return request, nil
 }
 
@@ -144,6 +163,17 @@ func postDo(client *http.Client, request *http.Request) error {
 		}
 	}()
 	return err
+}
+
+func encryptRSAAndBase64StdEncoding(crypt crypto.Crypto, plain []byte) string {
+	if bs, err := crypt.EncryptRSA(plain); err != nil {
+		logger.Log.Debug("post EncryptRSA",
+			zap.String("error", fmt.Sprintf("%v", err)),
+		)
+		return ""
+	} else {
+		return base64.StdEncoding.EncodeToString(bs)
+	}
 }
 
 func isUpperBound(index int, duration time.Duration) bool {

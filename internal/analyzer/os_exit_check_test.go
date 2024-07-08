@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-10 09:34 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * os_exit_check_test.go
  * $Id$
  */
@@ -7,9 +7,10 @@
 package analyzer
 
 import (
+	"testing"
+
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/analysistest"
-	"testing"
 )
 
 var OsExitCheckAnalyzer = &analysis.Analyzer{

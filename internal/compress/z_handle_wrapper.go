@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-15 16:00 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:46 by Victor N. Skurikhin.
  * z_handle_wrapper.go
  * $Id$
  */
@@ -10,11 +10,15 @@ package compress
 import (
 	"bytes"
 	"compress/gzip"
-	"github.com/vskurikhin/gometrics/internal/crypto"
-	"github.com/vskurikhin/gometrics/internal/env"
+	"encoding/base64"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"go.uber.org/zap"
+
+	"github.com/vskurikhin/gometrics/internal/crypto"
 
 	"github.com/vskurikhin/gometrics/internal/logger"
 )
@@ -24,19 +28,16 @@ func ZHandleWrapper(w http.ResponseWriter, r *http.Request, handler func(http.Re
 	if strings.Contains(r.Header.Get("Content-Encoding"), "gzip") {
 
 		logger.Log.Debug("got incoming HTTP request with Content-Encoding gzip in ZHandleWrapper")
-		body, err := io.ReadAll(r.Body)
+
+		// создаём *gzip.Reader, который будет читать тело запроса
+		// и распаковывать его
+		gz, err := gzip.NewReader(r.Body)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return http.StatusInternalServerError
 		}
-		cfg := env.GetServerConfig()
-		crypt := crypto.GetServerCrypto(cfg)
-		reader := tryDecryptRSA(crypt, body)
-
-		// создаём *gzip.Reader, который будет читать тело запроса
-		// и распаковывать его
-		gz, err := gzip.NewReader(reader)
+		body, err := io.ReadAll(gz)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -48,16 +49,52 @@ func ZHandleWrapper(w http.ResponseWriter, r *http.Request, handler func(http.Re
 		// gz.Close() не вызывает закрытия r.Body - это будет сделано позже, http-сервером
 		//nolint:multichecker,errcheck
 		defer func() { _ = gz.Close() }()
-		r.Body = gz
+
+		crypt := crypto.GetServerCrypto()
+		var reader io.ReadCloser
+		key := r.Header.Get("X-Content-Encrypting")
+
+		if key != "" {
+			reader = tryDecryptAES(crypt, key, body)
+		} else {
+			reader = io.NopCloser(bytes.NewBuffer(body))
+		}
+		r.Body = reader
 	}
 	return handler(w, r)
 }
 
-func tryDecryptRSA(crypt crypto.Crypto, b []byte) io.Reader {
+func tryDecryptAES(crypt crypto.Crypto, key string, body []byte) io.ReadCloser {
 
-	if buf, ok := crypt.TryDecryptRSA(b); ok {
-		return bytes.NewBuffer(buf)
+	logger.Log.Debug("post DecryptRSA", zap.String("key", key))
+	secretKey, err := decodeBase64AndDecryptRSA(crypt, key)
+
+	if err == nil && len(body) > 2 {
+		if buf, e := crypt.DecryptAES(secretKey, body); e != nil {
+			logger.Log.Debug("func ZHandleWrapper in DecryptAES", zap.String("error", fmt.Sprintf("%v", e)))
+			return io.NopCloser(bytes.NewBuffer(body))
+		} else {
+			logger.Log.Debug("func ZHandleWrapper in DecryptAES Ok!")
+			return io.NopCloser(bytes.NewBuffer(buf))
+		}
+	}
+	logger.Log.Debug("func ZHandleWrapper", zap.String("error", fmt.Sprintf("%v", err)))
+	return io.NopCloser(bytes.NewBuffer(body))
+}
+
+func decodeBase64AndDecryptRSA(crypt crypto.Crypto, b64 string) ([]byte, error) {
+
+	decoded, err := base64.StdEncoding.DecodeString(b64)
+
+	if err != nil {
+		return nil, err
+	}
+	if plain, err := crypt.DecryptRSA(decoded); err != nil {
+		logger.Log.Debug("post DecryptRSA",
+			zap.String("error", fmt.Sprintf("%v", err)),
+		)
+		return nil, err
 	} else {
-		return bytes.NewBuffer(b)
+		return plain, nil
 	}
 }

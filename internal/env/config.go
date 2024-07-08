@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-06-24 16:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-07-08 13:59 by Victor N. Skurikhin.
  * config.go
  * $Id$
  */
@@ -9,9 +9,10 @@ package env
 
 import (
 	"fmt"
-	"github.com/vskurikhin/gometrics/internal/util"
 	"sync"
 	"time"
+
+	"github.com/vskurikhin/gometrics/internal/util"
 )
 
 const (
@@ -20,43 +21,52 @@ const (
 	CryptoKey       = "crypto-key"
 	DatabaseDSN     = "database-dsn"
 	FileStoragePath = "file-storage-path"
+	GRPCAddress     = "grpc-address"
 	Key             = "key"
 	PollInterval    = "poll-interval"
 	ReportInterval  = "report-interval"
 	Restore         = "restore"
 	StoreInterval   = "store-interval"
+	TrustedSubnet   = "trusted-subnet"
 )
 
 type Config interface {
 	fmt.Stringer
 	ConfigFileName() string
-	CryptoKey() []string
+	CryptoKey() string
 	DataBaseDSN() string
 	FileStoragePath() string
+	GRPCAddress() string
 	IsDBSetup() bool
 	Key() *string
 	PollInterval() time.Duration
+	Property() Property
 	ReportInterval() time.Duration
 	Restore() bool
 	ServerAddress() string
 	StoreInterval() time.Duration
+	TrustedSubnet() string
 	URLHost() *string
 }
 
 type config struct {
 	configFileName  string
-	cryptoKey       []string
+	cryptoKey       string
 	dataBaseDSN     *string
 	fileStoragePath string
+	grpcAddress     string
 	key             *string
 	pollInterval    time.Duration
+	property        Property
 	reportInterval  time.Duration
 	restore         bool
 	serverAddress   string
 	storeInterval   time.Duration
+	trustedSubnet   string
 	urlHost         *string
 }
 
+var _ Config = (*config)(nil)
 var onceCfg = new(sync.Once)
 var cfg *config
 
@@ -68,6 +78,7 @@ func GetAgentConfig() Config {
 		initAgentFlags()
 		getAgentConfig()
 		initAgentConfig()
+		cfg.property = GetProperty()
 	})
 	return cfg
 }
@@ -80,13 +91,18 @@ func GetServerConfig() Config {
 		initServerFlags()
 		getServerConfig()
 		initServerConfig()
+		cfg.property = GetProperty()
 	})
 	return cfg
 }
 
 // GetTestConfig — для создания тестовой конфигурации.
-func GetTestConfig(opts ...func(*config)) Config {
-	return getConfig(opts...)
+func GetTestConfig(getProperty func() Property, opts ...func(*config)) Config {
+
+	cfg = getConfig(opts...)
+	cfg.property = getProperty()
+
+	return cfg
 }
 
 // WithConfigFileName — конфигурации сервера и агента с помощью файла в формате JSON.
@@ -102,14 +118,14 @@ func (c *config) ConfigFileName() string {
 }
 
 // WithCryptoKey — поддержка асимметричного шифрования.
-func WithCryptoKey(cryptoKey []string) func(*config) {
+func WithCryptoKey(cryptoKey string) func(*config) {
 	return func(c *config) {
 		c.cryptoKey = cryptoKey
 	}
 }
 
 // CryptoKey — поддержка асимметричного шифрования.
-func (c *config) CryptoKey() []string {
+func (c *config) CryptoKey() string {
 	return c.cryptoKey
 }
 
@@ -141,6 +157,18 @@ func (c *config) FileStoragePath() string {
 	return c.fileStoragePath
 }
 
+// WithGRPCAddress — адрес эндпоинта gRPC-сервера (по умолчанию :3200).
+func WithGRPCAddress(grpcAddress string) func(*config) {
+	return func(c *config) {
+		c.grpcAddress = grpcAddress
+	}
+}
+
+// GRPCAddress - геттер для адреса gRPC-сервера.
+func (c *config) GRPCAddress() string {
+	return c.grpcAddress
+}
+
 // IsDBSetup - геттер признака сконфигурированного соединения с БД.
 func (c *config) IsDBSetup() bool {
 	return c.dataBaseDSN != nil && *c.dataBaseDSN != ""
@@ -168,6 +196,18 @@ func WithPollInterval(pollInterval time.Duration) func(*config) {
 // PollInterval — геттер для частоты  опроса метрик из пакета runtime.
 func (c *config) PollInterval() time.Duration {
 	return c.pollInterval
+}
+
+// WithProperty — общие свойства которые используются в проекте.
+func WithProperty(property Property) func(*config) {
+	return func(c *config) {
+		c.property = property
+	}
+}
+
+// Property — геттер для общих свойств.
+func (c *config) Property() Property {
+	return c.property
 }
 
 // WithReportInterval — частота отправки метрик на сервер (по умолчанию 10 секунд).
@@ -220,6 +260,18 @@ func (c *config) StoreInterval() time.Duration {
 	return c.storeInterval
 }
 
+// WithTrustedSubnet — строковое представление доверенной подсети бесклассовой адресации (CIDR).
+func WithTrustedSubnet(trustedSubnet string) func(*config) {
+	return func(c *config) {
+		c.trustedSubnet = trustedSubnet
+	}
+}
+
+// TrustedSubnet — геттер строковое представление бесклассовой адресации (CIDR).
+func (c *config) TrustedSubnet() string {
+	return c.trustedSubnet
+}
+
 func (c *config) String() string {
 	format := `
 	dataBaseDSN     : %s
@@ -259,11 +311,12 @@ func (c *config) URLHost() *string {
 
 func getConfig(opts ...func(*config)) *config {
 
-	cfg = new(config)
+	result := new(config)
 
 	// вызываем все указанные функции для установки параметров
 	for _, opt := range opts {
-		opt(cfg)
+		opt(result)
 	}
-	return cfg
+
+	return result
 }
